@@ -2,6 +2,20 @@
 
 Ampere is an ActiveRecord-style ORM for the Redis key/value data store. 
 
+## Usage
+
+Write a model class and make it inherit from the `Ampere::Model` class.
+
+    class Post < Ampere::Model
+      field :title, String
+      field :contents, String
+    end
+
+This will define attr accessors for each field. Then to instantiate it,
+
+    Post.new :title    => "BREAKING: Kitties Are Awesome", 
+             :contents => "This just in! Kitties are super adorable, and super great."
+
 ## Contributing to ampere
  
   * Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet

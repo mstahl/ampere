@@ -27,6 +27,16 @@ describe "Base models" do
       post.should respond_to(:"content=")
     end
     
+    it "should know about its own fields" do
+      Post.fields.should include(:title)
+      Post.fields.should include(:byline)
+      Post.fields.should include(:content)
+    end
+    
+    it "should raise an exception when you try to set a field that doesn't exist" do
+      (->{Post.new :shazbot => "This isn't the right key"}).should raise_error
+    end
+    
     it "should have a 'new' method that works like we'd expect" do
       post = Post.new :title   => "Amish Give Up - 'This is bullshit!', Elders Say",
                       :byline  => "The Onion",
