@@ -56,6 +56,16 @@ describe "Base models" do
       post.content.should =~ /Lorem ipsum dolor/
     end
     
+    it "should be able to convert itself to a hash" do
+      post = Post.new :title   => "A title",
+                      :byline  => "Max",
+                      :content => "Some content"
+      hash = post.to_hash
+      hash[:title].should   == "A title"
+      hash[:byline].should  == "Max"
+      hash[:content].should == "Some content"
+    end
+    
     it "should have a 'save' and 'reload' method that work like we'd expect", wip:true do
       post = Post.new :title   => "A title",
                       :byline  => "Max",

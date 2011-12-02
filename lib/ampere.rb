@@ -16,6 +16,9 @@ module Ampere
     !! @@connection
   end
   
+  def self.connection
+    @@connection
+  end
 end
 
 Dir[File.join(File.dirname(__FILE__), 'ampere', '**', '*.rb')].each {|f| require f}

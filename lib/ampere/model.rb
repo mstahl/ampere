@@ -1,5 +1,7 @@
 module Ampere
   class Model
+    attr_reader :id
+    
     # Models remember their fields
     @@fields = []
     
@@ -8,6 +10,18 @@ module Ampere
     def initialize(hash = {})
       hash.each do |k, v|
         self.send("#{k}=", v)
+      end
+    end
+    
+    def save
+      
+    end
+    
+    def to_hash
+      {}.tap do |hash|
+        @@fields.each do |key|
+          hash[key] = self.send(key)
+        end
       end
     end
     
@@ -29,6 +43,10 @@ module Ampere
     def self.fields
       @@fields
     end
+    
+    ### Private methods
+    
+    
     
   end
   
