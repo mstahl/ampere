@@ -51,13 +51,22 @@ describe "Base models" do
                         cupidatat non proident, sunt in culpa qui officia
                         deserunt mollit anim id est laborum.
                       }
-      post.title.should == "Amish Give Up - 'This is bullshit!', Elders Say"
-      post.byline.should == "The Onion"
+      post.title.should   == "Amish Give Up - 'This is bullshit!', Elders Say"
+      post.byline.should  == "The Onion"
       post.content.should =~ /Lorem ipsum dolor/
     end
     
-    it "should have a 'save' method that works like we'd expect" do
-      pending
+    it "should have a 'save' and 'reload' method that work like we'd expect", wip:true do
+      post = Post.new :title   => "A title",
+                      :byline  => "Max",
+                      :content => "Some content"
+
+      post.save.should be_true
+
+      post.reload
+      post.title.should   == "A title"
+      post.byline.should  == "Max"
+      post.content.should == "Some content"
     end
     
     it "should be destroyed" do
