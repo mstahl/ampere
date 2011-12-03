@@ -13,8 +13,30 @@ module Ampere
       end
     end
     
-    def save
+    def new?
+      @id.nil? or not Ampere.connection.exists(@id)
+    end
+    
+    def reload
+      if self.new? then
+        raise "Can't reload a new record"
+      end
       
+      @@fields.each do |k|
+        self.send("#{k}=", Ampere.connection.hget(@id, k))
+      end
+      self
+    end
+    
+    
+    def save
+      # Grab a fresh GUID from Redis by incrementing the "__guid" key
+      if @id.nil? then
+        @id = Ampere.connection["__guid"] || "0"
+        Ampere.connection.incr("__guid")
+      end
+      
+      Ampere.connection.hmset(@id, self.to_hash)
     end
     
     def to_hash

@@ -1,8 +1,10 @@
 require File.join(File.dirname(__FILE__), "..", "spec_helper.rb")
 
-describe "Base models" do
+describe "Base models", :model => true do
   context "by themselves" do
     before :all do
+      Ampere.connect
+      
       # Clear out Redis
       Redis.new.flushall
       
@@ -43,13 +45,7 @@ describe "Base models" do
                       :content => %{
                         Lorem ipsum dolor sit amet, consectetur adipisicing
                         elit, sed do eiusmod tempor incididunt ut labore et
-                        dolore magna aliqua. Ut enim ad minim veniam, quis
-                        nostrud exercitation ullamco laboris nisi ut aliquip ex
-                        ea commodo consequat. Duis aute irure dolor in
-                        reprehenderit in voluptate velit esse cillum dolore eu
-                        fugiat nulla pariatur. Excepteur sint occaecat
-                        cupidatat non proident, sunt in culpa qui officia
-                        deserunt mollit anim id est laborum.
+                        dolore magna aliqua.
                       }
       post.title.should   == "Amish Give Up - 'This is bullshit!', Elders Say"
       post.byline.should  == "The Onion"
@@ -78,6 +74,15 @@ describe "Base models" do
       post.byline.should  == "Max"
       post.content.should == "Some content"
     end
+
+    it "should be able to tell when it's new", wip:true do
+      post = Post.new :title   => "A title",
+                      :byline  => "Max",
+                      :content => "Some content"
+      post.new?.should be_true
+      post.save
+      post.new?.should be_false
+    end
     
     it "should be destroyed" do
       pending
@@ -96,6 +101,7 @@ describe "Base models" do
     after :all do
       # Clear out Redis
       Redis.new.flushall
+      Ampere.disconnect
     end
     
   end
