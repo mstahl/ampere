@@ -28,7 +28,6 @@ module Ampere
       self
     end
     
-    
     def save
       # Grab a fresh GUID from Redis by incrementing the "__guid" key
       if @id.nil? then
@@ -36,11 +35,14 @@ module Ampere
         Ampere.connection.incr("__guid")
       end
       
-      Ampere.connection.hmset(@id, self.to_hash)
+      # Ampere.connection.hmset(@id, self.to_hash) # FIXME Somethin' wrong here. 
+      self.to_hash.each do |k, v|
+        Ampere.connection.hset(@id, k, v)
+      end
     end
     
     def to_hash
-      {}.tap do |hash|
+      {:id => @id}.tap do |hash|
         @@fields.each do |key|
           hash[key] = self.send(key)
         end
@@ -48,6 +50,10 @@ module Ampere
     end
     
     ### Class methods
+    
+    def self.create(hash = {})
+      self.class.new(hash).save
+    end
     
     def self.field(name, type)
       @@fields << name

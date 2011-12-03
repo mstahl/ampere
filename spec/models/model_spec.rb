@@ -62,7 +62,7 @@ describe "Base models", :model => true do
       hash[:content].should == "Some content"
     end
     
-    it "should have a 'save' and 'reload' method that work like we'd expect", wip:true do
+    it "should have a 'save' and 'reload' method that work like we'd expect" do
       post = Post.new :title   => "A title",
                       :byline  => "Max",
                       :content => "Some content"
@@ -75,7 +75,7 @@ describe "Base models", :model => true do
       post.content.should == "Some content"
     end
 
-    it "should be able to tell when it's new", wip:true do
+    it "should be able to tell when it's new" do
       post = Post.new :title   => "A title",
                       :byline  => "Max",
                       :content => "Some content"
@@ -89,7 +89,12 @@ describe "Base models", :model => true do
     end
     
     it "should be findable by ID" do
-      pending
+      post = Post.create :title   => "foo",
+                         :byline  => "bar",
+                         :content => "baz"
+      Post.find(post.id).should == post
+      # Since we're using GUIDs, this should also be true:
+      Model.find(post.id).should == post
     end
     
     it "should be findable by title" do
