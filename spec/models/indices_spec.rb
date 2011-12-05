@@ -33,9 +33,10 @@ describe "Model indices", :indices => true do
     end
     
     it 'should find an array of values for a non-unique index' do
-      pending
+      widgets = Widget.where(:baz => "baz").map(&:to_hash)
+      widgets.should include(@b.to_hash)
+      widgets.should include(@c.to_hash)
     end
-    
     
   end
   

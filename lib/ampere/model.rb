@@ -28,7 +28,6 @@ module Ampere
       end
       
       self.class.fields.each do |k|
-        puts "Found #{k} in @@fields within #{self.class}"
         self.send("#{k}=", Ampere.connection.hget(@id, k))
       end
       self
@@ -37,8 +36,7 @@ module Ampere
     def save
       # Grab a fresh GUID from Redis by incrementing the "__guid" key
       if @id.nil? then
-        @id = Ampere.connection["__guid"] || "0"
-        Ampere.connection.incr("__guid")
+        @id = "#{self.class.to_s.downcase}.#{'%016x' % Ampere.connection.incr('__guid').hash}"
       end
       
       # Ampere.connection.hmset(@id, self.to_hash) # FIXME Somethin' wrong here. 
@@ -78,7 +76,6 @@ module Ampere
     end
     
     def self.field(name, type)
-      # class_variable_set('fields', class_variable_get('fields') + [name])
       @fields ||= []
       @fields << name
       
@@ -100,12 +97,23 @@ module Ampere
       if options.class == String then
         new(Ampere.connection.hgetall(options))
       else
-        # For each key in options
-        # See if there's an index for this key
+        where(options)
       end
     end
     
     def self.index(field_name, options = {})
+      raise "Can't index a nonexistent field!" unless @fields.include?(field_name)
+      
+      unless Ampere.connection.exists("__index.#{self.class.to_s.downcase}.#{field_name}")
+        Ampere.connection.hset("__model", self.class.to_s.downcase)
+      end
+      
+      @indices << field_name
+    end
+    
+    def self.where(options = {})
+      # For each key in options
+      # See if there's an index for this key
     end
     
   end
