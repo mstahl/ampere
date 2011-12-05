@@ -43,6 +43,7 @@ module Ampere
       self.to_hash.each do |k, v|
         Ampere.connection.hset(@id, k, v)
       end
+      self
     end
     
     def to_hash
@@ -71,11 +72,14 @@ module Ampere
     
     ### Class methods
     
+    def self.belongs_to(field_name, options = {})
+    end
+    
     def self.create(hash = {})
       new(hash).save
     end
     
-    def self.field(name, type)
+    def self.field(name, type = String)
       @fields ||= []
       @fields << name
       
@@ -101,13 +105,39 @@ module Ampere
       end
     end
     
-    def self.index(field_name, options = {})
+    def self.has_one(field_name, options = {})
+      klass_name = options[:class] || options['class'] || field_name
+      klass = eval(klass_name.to_s.capitalize)
+      
+      class_eval do
+        attr_accessor "#{field_name}_id".to_sym
+      end
+      
+      define_method(field_name) do
+        klass.find(self.send("#{field_name}_id"))
+      end
+      
+      define_method(:"#{field_name}=") do |val|
+        return nil if val.nil?
+        
+        unless val.class == klass
+          raise "#{field_name} must be a #{klass_name}"
+        end
+        
+        self.send("#{field_name}_id=", val.id)
+      end
+    end
+    
+    def self.has_many(field_name, options = {})
+    end
+    
+    def self.index(field_name)
       raise "Can't index a nonexistent field!" unless @fields.include?(field_name)
       
       unless Ampere.connection.exists("__index.#{self.class.to_s.downcase}.#{field_name}")
         Ampere.connection.hset("__model", self.class.to_s.downcase)
       end
-      
+      @indices ||= []
       @indices << field_name
     end
     

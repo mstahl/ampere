@@ -5,13 +5,13 @@ describe "Model indices", :indices => true do
     Redis.new.flushall
     Ampere.connect
     class Widget < Ampere::Model
-      field :foo, String
-      field :bar, String
-      field :baz, String
+      field :foo
+      field :bar
+      field :baz
       
       index :foo
-      index :bar, :unique => true
-      index :baz, :unique => false
+      index :bar
+      index :baz
     end
     
     @a = Widget.new :foo => "foo",

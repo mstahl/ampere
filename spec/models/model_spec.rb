@@ -101,6 +101,13 @@ describe "Base models", :model => true do
       post.byline.should  == post2.byline
       post.content.should == post2.content
     end
+
+    it "should be able to save itself upon creation" do
+      post = Post.create :title   => "Another title",
+                         :byline  => "Max",
+                         :content => "Some other content"
+      Post.find(post.id).should == post
+    end
     
     # # #
     

@@ -8,6 +8,7 @@ module Ampere
   end
   
   def self.disconnect
+    return unless connected?
     @@connection.quit
     @@connection = nil
   end
