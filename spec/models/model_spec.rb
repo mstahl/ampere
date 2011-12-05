@@ -89,16 +89,17 @@ describe "Base models", :model => true do
     end
     
     it "should be findable by ID" do
-      post = Post.create :title   => "foo",
-                         :byline  => "bar",
-                         :content => "baz"
+      post = Post.new :title   => "foo",
+                      :byline  => "bar",
+                      :content => "baz"
+      post.save
       Post.find(post.id).should == post
       # Since we're using GUIDs, this should also be true:
-      Model.find(post.id).should == post
-    end
-    
-    it "should be findable by title" do
-      pending
+      post2 = Post.find(post.id)
+      
+      post.title.should   == post2.title
+      post.byline.should  == post2.byline
+      post.content.should == post2.content
     end
     
     # # #

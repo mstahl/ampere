@@ -1,15 +1,20 @@
+require 'pp'
+
 module Ampere
   class Model
     attr_reader :id
     
-    # Models remember their fields
-    @@fields = []
+    @fields = []
     
     ### Instance methods
     
     def initialize(hash = {})
       hash.each do |k, v|
-        self.send("#{k}=", v)
+        if k == 'id' then
+          @id = v
+        else
+          self.send("#{k}=", v)
+        end
       end
     end
     
@@ -22,7 +27,8 @@ module Ampere
         raise "Can't reload a new record"
       end
       
-      @@fields.each do |k|
+      self.class.fields.each do |k|
+        puts "Found #{k} in @@fields within #{self.class}"
         self.send("#{k}=", Ampere.connection.hget(@id, k))
       end
       self
@@ -43,20 +49,38 @@ module Ampere
     
     def to_hash
       {:id => @id}.tap do |hash|
-        @@fields.each do |key|
+        self.class.fields.each do |key|
           hash[key] = self.send(key)
         end
       end
     end
     
+    ### Various operators
+    
+    def ==(other)
+      self.class.fields.each do |f|
+        unless self.send(f) == other.send(f)
+          return false
+        end
+      end
+      
+      return true
+    end
+    
+    def !=(other)
+      ! (self == other)
+    end
+    
     ### Class methods
     
     def self.create(hash = {})
-      self.class.new(hash).save
+      new(hash).save
     end
     
     def self.field(name, type)
-      @@fields << name
+      # class_variable_set('fields', class_variable_get('fields') + [name])
+      @fields ||= []
+      @fields << name
       
       define_method(name) do
         instance_variable_get "@#{name}"
@@ -69,12 +93,20 @@ module Ampere
     end
     
     def self.fields
-      @@fields
+      @fields
     end
     
-    ### Private methods
+    def self.find(options = {})
+      if options.class == String then
+        new(Ampere.connection.hgetall(options))
+      else
+        # For each key in options
+        # See if there's an index for this key
+      end
+    end
     
-    
+    def self.index(field_name, options = {})
+    end
     
   end
   
