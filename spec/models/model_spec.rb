@@ -10,9 +10,9 @@ describe "Base models", :model => true do
       
       # Define a model class here.
       class Post < Ampere::Model
-        field :title, String
-        field :byline, String
-        field :content, String
+        field :title
+        field :byline
+        field :content
       end
       
     end
@@ -33,6 +33,17 @@ describe "Base models", :model => true do
       Post.fields.should include(:title)
       Post.fields.should include(:byline)
       Post.fields.should include(:content)
+    end
+    
+    it "should have default values definable", wip:true do
+      class Comment < Ampere::Model
+        field :subject, :default => "No subject"
+        field :content
+      end
+      
+      comment = Comment.new
+      comment.subject.should == "No subject"
+      comment.content.should be_nil
     end
     
     it "should raise an exception when you try to set a field that doesn't exist" do
@@ -84,8 +95,24 @@ describe "Base models", :model => true do
       post.new?.should be_false
     end
     
-    it "should be destroyed" do
-      pending
+    it "should be deleteable from the model class" do
+      post = Post.create :title   => "This post should be deleted",
+                         :byline  => "because it's awful",
+                         :content => "and it doesn't even make sense."
+      id = post.id
+      post.should_not be_nil
+      Post.delete(post.id).should == post
+      Post.find(id).should be_nil
+    end
+    
+    it "should be destroyable by itself" do
+      another_post = Post.create :title   => "This one too, probably.",
+                                 :byline  => "Just seems like one bit",
+                                 :content => "non sequitor."
+      id = another_post.id
+      another_post.destroy
+      another_post.should be_nil
+      Post.find(id).should be_nil
     end
     
     it "should be findable by ID" do

@@ -5,10 +5,7 @@ describe "Model relationships", :mode => true, :relationships => true do
     Redis.new.flushall
     Ampere.connect
     
-    class Category < Ampere::Model
-      field :name
-    end
-    
+    # Here are some classes that are related to each ohter in various ways
     class Post < Ampere::Model
       field :title
       field :content
@@ -18,12 +15,30 @@ describe "Model relationships", :mode => true, :relationships => true do
       belongs_to :user
     end
     
+    class Category < Ampere::Model
+      field :name
+    end
+    
     class Comment < Ampere::Model
       field :content
 
       belongs_to :post
     end
     
+    # These are used by the has_one/belongs_to example below
+    class Car < Ampere::Model
+      field :make
+      field :model
+      field :year
+      
+      has_one :engine
+    end
+    
+    class Engine < Ampere::Model
+      field :displacement
+      field :model
+      field :manufacturer
+    end
   end
   
   ###
@@ -47,6 +62,12 @@ describe "Model relationships", :mode => true, :relationships => true do
   end
   
   context 'belongs_to relationships' do
+    it 'should associate a belongs_to when a has_many is set' do
+    end
+    
+    it 'should associate a belongs_to when a has_one is set' do
+      
+    end
   end
   
   context 'has_many relationships' do

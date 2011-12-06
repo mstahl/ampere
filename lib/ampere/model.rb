@@ -79,9 +79,19 @@ module Ampere
       new(hash).save
     end
     
-    def self.field(name, type = String)
+    def self.delete(id)
+      find(id).tap do |obj|
+        Ampere.connection.del(obj.id)
+      end
+    end
+    
+    def self.field(name, options = {})
       @fields ||= []
       @fields << name
+      
+      class_eval do
+        attr_accessor name.to_sym
+      end
       
       define_method(name) do
         instance_variable_get "@#{name}"
@@ -91,6 +101,7 @@ module Ampere
         instance_variable_set "@#{name}", val
       end
       
+      self.send("#{name}=", options[:default]) if options.has_key?(:default)
     end
     
     def self.fields
