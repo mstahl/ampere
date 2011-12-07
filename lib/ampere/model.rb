@@ -4,7 +4,8 @@ module Ampere
   class Model
     attr_reader :id
     
-    @fields = []
+    @fields         = []
+    @field_defaults = {}
     
     ### Instance methods
     
@@ -89,23 +90,25 @@ module Ampere
       @fields ||= []
       @fields << name
       
-      class_eval do
-        attr_accessor name.to_sym
-      end
+      attr_accessor :"#{name}"
       
-      define_method(name) do
-        instance_variable_get "@#{name}"
-      end
+      instance_variable_set "@#{name}", options[:default]
       
-      define_method(:"#{name}=") do |val|
-        instance_variable_set "@#{name}", val
-      end
+      # Handle default value
+      @field_defaults ||= {}
+      @field_defaults[name] = options[:default]
       
-      self.send("#{name}=", options[:default]) if options.has_key?(:default)
+      define_method :"#{name}" do
+        instance_variable_get("@#{name}") or self.class.field_defaults[name]
+      end
     end
     
     def self.fields
       @fields
+    end
+    
+    def self.field_defaults
+      @field_defaults
     end
     
     def self.find(options = {})
