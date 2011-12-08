@@ -10,6 +10,10 @@ module Ampere
     
     ### Instance methods
     
+    def destroy
+      self.class.delete(@id)
+    end
+    
     def initialize(hash = {})
       hash.each do |k, v|
         if k == 'id' then

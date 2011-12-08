@@ -106,13 +106,11 @@ describe "Base models", :model => true do
     end
     
     it "should be destroyable by itself" do
-      pending
       another_post = Post.create :title   => "This one too, probably.",
                                  :byline  => "Just seems like one bit",
                                  :content => "non sequitor."
       id = another_post.id
-      another_post.destroy
-      another_post.should be_nil
+      another_post.destroy.should == 1
       Post.find(id).should be_nil
     end
     

@@ -37,12 +37,6 @@ describe "Model indices", :indices => true do
     
   end
   
-  context 'unique indices' do
-    it 'should find a singular value for a unique index' do
-      pending
-    end
-  end
-  
   ###
   
   after :all do
