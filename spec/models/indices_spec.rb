@@ -11,7 +11,7 @@ describe "Model indices", :indices => true do
       field :student_id_num
       
       index :last_name
-      index :student_id_num, :unique => true
+      index :student_id_num
     end
     
     @a = Student.create :first_name     => "Hannibal",
