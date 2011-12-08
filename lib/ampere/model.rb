@@ -99,13 +99,15 @@ module Ampere
     end
     
     def self.field(name, options = {})
-      @fields ||= []
+      @fields         ||= []
+      @field_defaults ||= {}
+      @indices        ||= []
+      
       @fields << name
       
       attr_accessor :"#{name}"
       
       # Handle default value
-      @field_defaults ||= {}
       @field_defaults[name] = options[:default]
       
       define_method :"#{name}" do
@@ -158,7 +160,10 @@ module Ampere
     def self.index(field_name, options = {})
       raise "Can't index a nonexistent field!" unless @fields.include?(field_name)
       
-      @indices ||= []
+      @fields         ||= []
+      @field_defaults ||= {}
+      @indices        ||= []
+      
       @indices << field_name
     end
     
