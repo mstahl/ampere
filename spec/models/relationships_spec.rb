@@ -4,26 +4,6 @@ describe "Model relationships", :mode => true, :relationships => true do
   before :all do
     Redis.new.flushall
     Ampere.connect
-    
-    # Here are some classes that are related to each ohter in various ways
-    class Post < Ampere::Model
-      field :title
-      field :content
-      
-      has_one :category
-      has_many :comments
-      belongs_to :user
-    end
-    
-    class Category < Ampere::Model
-      field :name
-    end
-    
-    class Comment < Ampere::Model
-      field :content
-
-      belongs_to :post
-    end
   end
   
   ###
