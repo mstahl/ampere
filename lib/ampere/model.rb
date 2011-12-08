@@ -6,6 +6,7 @@ module Ampere
     
     @fields         = []
     @field_defaults = {}
+    @indices        = []
     
     ### Instance methods
     
@@ -37,12 +38,23 @@ module Ampere
     def save
       # Grab a fresh GUID from Redis by incrementing the "__guid" key
       if @id.nil? then
-        @id = "#{self.class.to_s.downcase}.#{'%016x' % Ampere.connection.incr('__guid').hash}"
+        @id = "#{self.class.to_s.downcase}.#{Ampere.connection.incr('__guid')}"
       end
       
-      # Ampere.connection.hmset(@id, self.to_hash) # FIXME Somethin' wrong here. 
       self.to_hash.each do |k, v|
         Ampere.connection.hset(@id, k, v)
+        
+        # If there's an index on this field, also set a reference to this
+        # model from there.
+        if self.class.indices.include?(k) then
+          # indexed_ids = (Ampere.connection.hget("ampere.index.#{self.class.to_s.downcase}.#{k}", v) or "").split(/:/)
+          # indexed_ids |= [@id]
+          Ampere.connection.hset(
+            "ampere.index.#{self.class.to_s.downcase}.#{k}", 
+            v, 
+            ([@id] | (Ampere.connection.hget("ampere.index.#{self.class.to_s.downcase}.#{k}", v) or "").split(/:/)).join(":")
+          )
+        end
       end
       self
     end
@@ -91,8 +103,6 @@ module Ampere
       @fields << name
       
       attr_accessor :"#{name}"
-      
-      instance_variable_set "@#{name}", options[:default]
       
       # Handle default value
       @field_defaults ||= {}
@@ -145,19 +155,30 @@ module Ampere
     def self.has_many(field_name, options = {})
     end
     
-    def self.index(field_name)
+    def self.index(field_name, options = {})
       raise "Can't index a nonexistent field!" unless @fields.include?(field_name)
       
-      unless Ampere.connection.exists("__index.#{self.class.to_s.downcase}.#{field_name}")
-        Ampere.connection.hset("__model", self.class.to_s.downcase)
-      end
       @indices ||= []
       @indices << field_name
     end
     
+    def self.indices
+      @indices
+    end
+    
     def self.where(options = {})
+      results = []
       # For each key in options
-      # See if there's an index for this key
+      options.keys.each do |key|
+        if @indices.include?(key) then
+          result_ids = Ampere.connection.hget("ampere.index.#{to_s.downcase}.#{key}", options[key]) #.split(/:/)
+        
+          results |= result_ids.split(/:/).map {|id| find(id)}
+        else
+          raise "Cannot query on un-indexed fields."
+        end
+      end
+      results
     end
     
   end

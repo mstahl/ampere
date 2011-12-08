@@ -4,44 +4,43 @@ describe "Model indices", :indices => true do
   before :all do
     Redis.new.flushall
     Ampere.connect
-    class Widget < Ampere::Model
-      field :foo
-      field :bar
-      field :baz
+
+    class Student < Ampere::Model
+      field :first_name
+      field :last_name
+      field :student_id_num
       
-      index :foo
-      index :bar
-      index :baz
+      index :last_name
+      index :student_id_num, :unique => true
     end
     
-    @a = Widget.new :foo => "foo",
-                    :bar => "foo",
-                    :baz => "foo"
-    @b = Widget.new :foo => "bar",
-                    :bar => "bar",
-                    :baz => "baz"     # Same as @c.baz
-    @c = Widget.new :foo => "baz",
-                    :bar => "baz",
-                    :baz => "baz"     # Same as @b.baz
+    @a = Student.create :first_name     => "Hannibal",
+                        :last_name      => "Smith",
+                        :student_id_num => 1001
+    @b = Student.create :first_name     => "Cindy",
+                        :last_name      => "Smith",
+                        :student_id_num => 1002
+    @c = Student.create :first_name     => "Emmanuel",
+                        :last_name      => "Goldstein",
+                        :student_id_num => 1003
   end
   
   ###
   
   context 'non-unique indices' do
-    it 'should default to non-unique' do
-      pending
-    end
-    
     it 'should find an array of values for a non-unique index' do
-      widgets = Widget.where(:baz => "baz").map(&:to_hash)
-      widgets.should include(@b.to_hash)
-      widgets.should include(@c.to_hash)
+      smiths = Student.where(:last_name => "Smith")
+      smiths.should_not be_empty
+      smiths.map(&:first_name).should include("Hannibal")
+      smiths.map(&:first_name).should include("Cindy")
     end
     
   end
   
   context 'unique indices' do
-    pending
+    it 'should find a singular value for a unique index' do
+      pending
+    end
   end
   
   ###
