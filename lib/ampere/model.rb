@@ -129,7 +129,7 @@ module Ampere
           nil
         end
       else
-        where(options)
+        # TODO Write a handler for this case, even if it's an exception
       end
     end
     
@@ -140,7 +140,7 @@ module Ampere
         attr_accessor "#{field_name}_id".to_sym
       end
       
-      define_method(field_name) do
+      define_method(field_name.to_sym) do
         eval(klass_name.to_s.capitalize).find(self.send("#{field_name}_id"))
       end
       
@@ -174,14 +174,18 @@ module Ampere
     
     def self.where(options = {})
       results = []
-      # For each key in options
-      options.keys.each do |key|
-        if @indices.include?(key) then
-          result_ids = Ampere.connection.hget("ampere.index.#{to_s.downcase}.#{key}", options[key]) #.split(/:/)
+      
+      if options.empty? then
+        results = Ampere.connection.keys("#{to_s.downcase}.*").map{|k| find(k)}
+      else
+        options.keys.each do |key|
+          if @indices.include?(key) then
+            result_ids = Ampere.connection.hget("ampere.index.#{to_s.downcase}.#{key}", options[key]) #.split(/:/)
         
-          results |= result_ids.split(/:/).map {|id| find(id)}
-        else
-          raise "Cannot query on un-indexed fields."
+            results |= result_ids.split(/:/).map {|id| find(id)}
+          else
+            raise "Cannot query on un-indexed fields."
+          end
         end
       end
       results
