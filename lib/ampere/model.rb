@@ -134,23 +134,22 @@ module Ampere
     end
     
     def self.has_one(field_name, options = {})
-      klass_name = options[:class] || options['class'] || field_name
-      klass = eval(klass_name.to_s.capitalize)
+      klass_name = (options[:class] or options['class'] or field_name)
       
       class_eval do
         attr_accessor "#{field_name}_id".to_sym
       end
       
       define_method(field_name) do
-        klass.find(self.send("#{field_name}_id"))
+        eval(klass_name.to_s.capitalize).find(self.send("#{field_name}_id"))
       end
       
       define_method(:"#{field_name}=") do |val|
         return nil if val.nil?
         
-        unless val.class == klass
-          raise "#{field_name} must be a #{klass_name}"
-        end
+        # unless val.class == klass
+        #   raise "#{field_name} must be a '#{klass}' (is actually '#{val.class}')"
+        # end
         
         self.send("#{field_name}_id=", val.id)
       end
