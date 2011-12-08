@@ -93,9 +93,7 @@ module Ampere
     end
     
     def self.delete(id)
-      find(id).tap do |obj|
-        Ampere.connection.del(obj.id)
-      end
+      Ampere.connection.del(id)
     end
     
     def self.field(name, options = {})
@@ -125,7 +123,11 @@ module Ampere
     
     def self.find(options = {})
       if options.class == String then
-        new(Ampere.connection.hgetall(options))
+        if Ampere.connection.exists(options) then
+          new(Ampere.connection.hgetall(options))
+        else
+          nil
+        end
       else
         where(options)
       end

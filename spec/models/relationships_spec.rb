@@ -1,6 +1,7 @@
 require File.join(File.dirname(__FILE__), "..", "spec_helper.rb")
 
 describe "Model relationships", :mode => true, :relationships => true do
+  pending
   before :all do
     Redis.new.flushall
     Ampere.connect
