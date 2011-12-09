@@ -27,6 +27,12 @@ describe "Model indices", :indices => true do
   
   ###
   
+  it 'should know about its own indices' do
+    Student.indices.should include(:last_name)
+    Student.indices.should_not include(:first_name)
+    Student.indices.should include(:student_id_num)
+  end
+  
   it 'should find an array of values for a non-unique index' do
     smiths = Student.where(:last_name => "Smith")
     smiths.should_not be_empty
