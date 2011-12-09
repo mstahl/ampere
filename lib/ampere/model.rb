@@ -160,6 +160,19 @@ module Ampere
     end
     
     def self.has_many(field_name, options = {})
+      klass_name = (options[:class] or options['class'] or field_name)
+      
+      class_eval do
+        attr_accessor "#{field_name}s".to_sym
+      end
+      
+      define_method(field_name.to_sym) do
+        
+      end
+      
+      define_method(:"#{field_name}=") do |val|
+        
+      end
     end
     
     def self.index(field_name, options = {})

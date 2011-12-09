@@ -2,6 +2,9 @@
 
 Ampere is an ActiveRecord-style ORM for the Redis key/value data store. 
 
+This is under active development right now and not very far along. Stay
+tuned for further developments.
+
 ## Usage
 
 Write a model class and make it inherit from the `Ampere::Model` class.
