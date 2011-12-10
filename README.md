@@ -8,10 +8,30 @@ tuned for further developments.
 ## Usage
 
 Write a model class and make it inherit from the `Ampere::Model` class.
+These work pretty similarly to how they do in ActiveRecord or Mongoid.
 
-    class Post < Ampere::Model
-      field :title, String
-      field :contents, String
+    class Car < Ampere::Model
+      field :make
+      field :model
+      field :year
+
+      has_one :engine
+      has_many :passengers
+    end
+
+    class Engine < Ampere::Model
+      field :displacement
+      field :cylinders
+      field :configuration
+      
+      belongs_to :car
+    end
+    
+    class Passenger < Ampere::Model
+      field :name
+      field :seat
+      
+      belongs_to :car
     end
 
 This will define attr accessors for each field. Then to instantiate it,

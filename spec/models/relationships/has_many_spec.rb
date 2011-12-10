@@ -37,13 +37,11 @@ describe 'has_many relationships', :has_many => true do
     # Attr accessors
     @car.should respond_to(:passengers)
     @car.should respond_to(:"passengers=")
-    # @driver.should respond_to(:car)
-    # @passenger.should respond_to(:car)
   end
   
   it 'should be able to add items to has_many relationships', wip:true do
-    @car.passengers << @driver
-    @car.passengers << @passenger
+    @car.passengers = @car.passengers + [@driver]
+    @car.passengers = @car.passengers + [@passenger]
 
     @car.save
     @car.reload

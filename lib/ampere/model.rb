@@ -141,7 +141,7 @@ module Ampere
       klass_name = (options[:class] or options['class'] or field_name)
       
       class_eval do
-        attr_accessor "#{field_name}_id".to_sym
+        attr_accessor :"#{field_name}_id"
       end
       
       define_method(field_name.to_sym) do
@@ -151,27 +151,27 @@ module Ampere
       define_method(:"#{field_name}=") do |val|
         return nil if val.nil?
         
-        # unless val.class == klass
-        #   raise "#{field_name} must be a '#{klass}' (is actually '#{val.class}')"
-        # end
-        
         self.send("#{field_name}_id=", val.id)
       end
     end
     
     def self.has_many(field_name, options = {})
-      klass_name = (options[:class] or options['class'] or field_name)
+      klass_name = (options[:class] or options['class'] or field_name.to_s.gsub(/s$/, ''))
       
-      class_eval do
-        attr_accessor "#{field_name}s".to_sym
-      end
-      
-      define_method(field_name.to_sym) do
-        
+      define_method(:"#{field_name}") do
+        (Ampere.connection.smembers("#{to_s.downcase}.#{self.id}.has_many.#{field_name}")).map do |id|
+          eval(klass_name.to_s.capitalize).find(id)
+        end
       end
       
       define_method(:"#{field_name}=") do |val|
-        
+        # puts "!!!!!!!!!!!!!!! #{klass_name}"
+        # pp val
+
+        val.each do |v|
+          # puts "    #=> doot!"
+          Ampere.connection.sadd("#{to_s.downcase}.#{self.id}.has_many.#{field_name}", v.id)
+        end
       end
     end
     
