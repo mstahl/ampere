@@ -1,6 +1,6 @@
 require File.join(File.dirname(__FILE__), "..", "..", "spec_helper.rb")
 
-describe 'belongs_to relationships' do
+describe 'belongs_to relationships', :belongs_to => true do
   before :all do
     Redis.new.flushall
     Ampere.connect
@@ -36,14 +36,43 @@ describe 'belongs_to relationships' do
     @engine = Engine.create :displacement  => "5167",
                             :cylinders     => "12",
                             :configuration => "V"
+    @driver = Passenger.create :name => "Max",
+                               :seat => "driver"
+    @passenger = Passenger.create :name => "Leila",
+                                  :seat => "passenger"
   end
   
   ###
   
   it 'sets accessor methods for a belongs_to relationship' do
+    # Other side of a has_many
+    @driver.should respond_to(:car)
+    # Other side of a has_one
+    @engine.should respond_to(:car)
   end
   
-  it 'sets belongs_to pointer for has_one relationship' do
+  it 'sets belongs_to pointer for has_one relationship that is set from the parent' do
+    @car.engine = @engine
+    @car.save
+    @engine.save
+    @car.engine.should == @engine
+    @engine.car.should == @car
+    
+    # Cleanup
+    @car.engine = nil
+    @engine.car = nil
+  end
+  
+  it 'sets belongs_to pointer for has_one relationship that is set from the child' do
+    @engine.car = @car
+    @car.save
+    @engine.save
+    @car.engine.should == @engine
+    @engine.car.should == @car
+    
+    # Cleanup
+    @car.engine = nil
+    @engine.car = nil
   end
   
   it 'sets belongs_to pointer for has_many relationship' do

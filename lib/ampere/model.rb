@@ -90,6 +90,7 @@ module Ampere
     ### Class methods
     
     def self.belongs_to(field_name, options = {})
+      has_one field_name, options
     end
     
     def self.create(hash = {})
@@ -138,25 +139,30 @@ module Ampere
     end
     
     def self.has_one(field_name, options = {})
-      klass_name = (options[:class] or options['class'] or field_name)
+      referred_klass_name = (options[:class] or options['class'] or field_name)
+      my_klass_name = to_s.downcase
       
       class_eval do
         attr_accessor :"#{field_name}_id"
       end
       
       define_method(field_name.to_sym) do
-        eval(klass_name.to_s.capitalize).find(self.send("#{field_name}_id"))
+        return if self.send("#{field_name}_id").nil?
+        eval(referred_klass_name.to_s.capitalize).find(self.send("#{field_name}_id"))
       end
       
       define_method(:"#{field_name}=") do |val|
         return nil if val.nil?
-        
+        # Set attr with key where referred model is stored
         self.send("#{field_name}_id=", val.id)
+        # Also update that model's hash with a pointer back to here
+        Ampere.connection.hset(val.id, "#{my_klass_name}_id", self.send("id"))
       end
     end
     
     def self.has_many(field_name, options = {})
       klass_name = (options[:class] or options['class'] or field_name.to_s.gsub(/s$/, ''))
+      my_klass_name = to_s.downcase
       
       define_method(:"#{field_name}") do
         (Ampere.connection.smembers("#{to_s.downcase}.#{self.id}.has_many.#{field_name}")).map do |id|
@@ -165,12 +171,10 @@ module Ampere
       end
       
       define_method(:"#{field_name}=") do |val|
-        # puts "!!!!!!!!!!!!!!! #{klass_name}"
-        # pp val
-
         val.each do |v|
-          # puts "    #=> doot!"
           Ampere.connection.sadd("#{to_s.downcase}.#{self.id}.has_many.#{field_name}", v.id)
+          # Set pointer for belongs_to
+          Ampere.connection.hset(v.id, "#{my_klass_name}_id", self.send("id"))
         end
       end
     end
