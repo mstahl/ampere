@@ -156,7 +156,8 @@ module Ampere
         # Set attr with key where referred model is stored
         self.send("#{field_name}_id=", val.id)
         # Also update that model's hash with a pointer back to here
-        Ampere.connection.hset(val.id, "#{my_klass_name}_id", self.send("id"))
+        # Ampere.connection.hset(val.id, "#{my_klass_name}_id", self.send("id"))
+        val.send("#{my_klass_name}_id=", self.send("id"))
       end
     end
     
