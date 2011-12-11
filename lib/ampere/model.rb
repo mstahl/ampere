@@ -51,8 +51,6 @@ module Ampere
         # If there's an index on this field, also set a reference to this
         # model from there.
         if self.class.indices.include?(k) then
-          # indexed_ids = (Ampere.connection.hget("ampere.index.#{self.class.to_s.downcase}.#{k}", v) or "").split(/:/)
-          # indexed_ids |= [@id]
           Ampere.connection.hset(
             "ampere.index.#{self.class.to_s.downcase}.#{k}", 
             v, 
@@ -76,7 +74,6 @@ module Ampere
     def ==(other)
       self.class.fields.each do |f|
         unless self.send(f) == other.send(f)
-          # puts "!!! => field that failed was #{f}"
           return false
         end
       end
@@ -144,9 +141,6 @@ module Ampere
       my_klass_name = to_s.downcase
       
       field :"#{field_name}_id"
-      # class_eval do
-      #   attr_accessor :"#{field_name}_id"
-      # end
       
       define_method(field_name.to_sym) do
         return if self.send("#{field_name}_id").nil?

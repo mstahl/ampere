@@ -1,7 +1,7 @@
 require File.join(File.dirname(__FILE__), "..", "..", "spec_helper.rb")
 
 describe 'has_many relationships', :has_many => true do
-  before :all do
+  before :each do
     Redis.new.flushall
     Ampere.connect
     
@@ -48,10 +48,6 @@ describe 'has_many relationships', :has_many => true do
     
     @driver.reload
     @passenger.reload
-
-    # pp @car.passengers
-    # pp @driver
-    # pp @passenger
 
     @car.passengers.should include(@driver)
     @car.passengers.should include(@passenger)
