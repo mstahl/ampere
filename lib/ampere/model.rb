@@ -81,10 +81,6 @@ module Ampere
       return true
     end
     
-    def !=(other)
-      ! (self == other)
-    end
-    
     ### Class methods
     
     def self.belongs_to(field_name, options = {})

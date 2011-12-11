@@ -92,6 +92,15 @@ describe "Base models", :model => true do
                       :content => "Some content"
       (->{post.reload}).should raise_error
     end
+    
+    it "should be able to tell when two records are equivalent" do
+      foo = Post.new :title => "Kitties!", :byline => "Max", :content => "Kitties are awesome."
+      bar = Post.new :title => "Doggies!", :byline => "Max", :content => "Doggies are cool."
+      
+      foo.should == Post.new(:title => "Kitties!", :byline => "Max", :content => "Kitties are awesome.")
+      foo.should_not == bar
+      
+    end
 
     it "should be able to tell when it's new" do
       post = Post.new :title   => "A title",
