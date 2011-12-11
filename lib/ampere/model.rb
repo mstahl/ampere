@@ -83,8 +83,16 @@ module Ampere
     
     ### Class methods
     
+    def self.all
+      Ampere.connection.keys("#{to_s.downcase}.*").map{|m| find m}
+    end
+    
     def self.belongs_to(field_name, options = {})
       has_one field_name, options
+    end
+    
+    def self.count
+      Ampere.connection.keys("#{to_s.downcase}.*").length
     end
     
     def self.create(hash = {})
@@ -189,7 +197,7 @@ module Ampere
       results = []
       
       if options.empty? then
-        results = Ampere.connection.keys("#{to_s.downcase}.*").map{|k| find(k)}
+        []
       else
         options.keys.each do |key|
           if @indices.include?(key) then
