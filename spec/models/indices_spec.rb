@@ -40,7 +40,7 @@ describe "Model indices", :indices => true do
     smiths.map(&:first_name).should include("Cindy")
   end
   
-  it 'should find a single value for a unique index', wip:true do
+  it 'should find a single value for a unique index' do
     emmanuel = Student.where(:student_id_num => "1003")
     emmanuel.should_not be_empty
     emmanuel.first.first_name.should == "Emmanuel"

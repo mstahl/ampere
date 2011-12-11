@@ -11,8 +11,8 @@ describe 'queries', :queries => true do
       field :age
       field :color
       
-      index :name
-      index :color
+      index :name     # => Unique
+      index :color    # => Non-unique
     end
     
     @kitty_paws = {
@@ -79,12 +79,15 @@ describe 'queries', :queries => true do
     end
   end
   
-  it 'should be able to find by two indexed fields at once' do
-    pending
+  it 'should be able to find by two indexed fields at once', wip:true do
+    Kitty.where(:name => "Kitty Paws", :color => "orange").count.should == 1
   end
   
   it 'should be able to find by two non-indexed fields at once' do
-    pending
+    Kitty.where(:color => "orange").count.should == 2
+    Kitty.where(:breed => "Siberian").count.should == 2
+    Kitty.where(:color => "orange", :breed => "Siberian").count.should == 1
+    Kitty.where(:color => "orange", :breed => "Siberian").first.name.should == "Italics"
   end
   
   it 'should be able to find by a mix of indexed and non-indexed fields' do

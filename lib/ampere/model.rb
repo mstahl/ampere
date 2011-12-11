@@ -199,17 +199,25 @@ module Ampere
       else
         indexed_fields    = options.keys & @indices
         nonindexed_fields = options.keys - @indices
+        
+        puts "query:"
+        puts "    #{options}"
+        puts "fields:"
+        puts "    indexed:     #{indexed_fields}"
+        puts "    non-indexed: #{nonindexed_fields}"
 
         results = []
         
         indexed_fields.each do |key|
-          result_ids = Ampere.connection.hget("ampere.index.#{to_s.downcase}.#{key}", options[key]) #.split(/:/)
+          result_ids = Ampere.connection.hget("ampere.index.#{to_s.downcase}.#{key}", options[key]).split(/:/)
 
-          results |= result_ids.split(/:/).map {|id| find(id)}
+          results |= result_ids.map {|id| find(id)}
         end
-        
-        results = all if results.empty?
-        
+        puts '!'
+        p results
+        results = all if results.nil? or results.empty?
+        p results
+        puts '!'
         nonindexed_fields.each do |key|
           results.select!{|r| r.send(key) == options[key]}
         end
