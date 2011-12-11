@@ -40,10 +40,10 @@ describe "Model indices", :indices => true do
     smiths.map(&:first_name).should include("Cindy")
   end
   
-  it 'should find a single value for a unique index' do
-    smiths = Student.where(:student_id_num => "1003")
-    smiths.should_not be_empty
-    smiths.first.first_name.should == "Emmanuel"
+  it 'should find a single value for a unique index', wip:true do
+    emmanuel = Student.where(:student_id_num => "1003")
+    emmanuel.should_not be_empty
+    emmanuel.first.first_name.should == "Emmanuel"
   end
   
   it 'should refuse to create an index on a field that does not exist' do

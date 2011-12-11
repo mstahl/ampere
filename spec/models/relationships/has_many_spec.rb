@@ -39,7 +39,7 @@ describe 'has_many relationships', :has_many => true do
     @car.should respond_to(:"passengers=")
   end
   
-  it 'should be able to add items to has_many relationships', wip:true do
+  it 'should be able to add items to has_many relationships' do
     @car.passengers = @car.passengers + [@driver]
     @car.passengers = @car.passengers + [@passenger]
 

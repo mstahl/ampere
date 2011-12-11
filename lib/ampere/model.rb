@@ -194,22 +194,27 @@ module Ampere
     end
     
     def self.where(options = {})
-      results = []
-      
       if options.empty? then
         []
       else
-        options.keys.each do |key|
-          if @indices.include?(key) then
-            result_ids = Ampere.connection.hget("ampere.index.#{to_s.downcase}.#{key}", options[key]) #.split(/:/)
+        indexed_fields    = options.keys & @indices
+        nonindexed_fields = options.keys - @indices
+
+        results = []
         
-            results |= result_ids.split(/:/).map {|id| find(id)}
-          else
-            raise "Cannot query on un-indexed fields."
-          end
+        indexed_fields.each do |key|
+          result_ids = Ampere.connection.hget("ampere.index.#{to_s.downcase}.#{key}", options[key]) #.split(/:/)
+
+          results |= result_ids.split(/:/).map {|id| find(id)}
         end
+        
+        results = all if results.empty?
+        
+        nonindexed_fields.each do |key|
+          results.select!{|r| r.send(key) == options[key]}
+        end
+        results
       end
-      results
     end
     
   end
