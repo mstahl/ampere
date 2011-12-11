@@ -76,6 +76,7 @@ module Ampere
     def ==(other)
       self.class.fields.each do |f|
         unless self.send(f) == other.send(f)
+          # puts "!!! => field that failed was #{f}"
           return false
         end
       end
@@ -142,9 +143,10 @@ module Ampere
       referred_klass_name = (options[:class] or options['class'] or field_name)
       my_klass_name = to_s.downcase
       
-      class_eval do
-        attr_accessor :"#{field_name}_id"
-      end
+      field :"#{field_name}_id"
+      # class_eval do
+      #   attr_accessor :"#{field_name}_id"
+      # end
       
       define_method(field_name.to_sym) do
         return if self.send("#{field_name}_id").nil?
@@ -156,7 +158,6 @@ module Ampere
         # Set attr with key where referred model is stored
         self.send("#{field_name}_id=", val.id)
         # Also update that model's hash with a pointer back to here
-        # Ampere.connection.hset(val.id, "#{my_klass_name}_id", self.send("id"))
         val.send("#{my_klass_name}_id=", self.send("id"))
       end
     end

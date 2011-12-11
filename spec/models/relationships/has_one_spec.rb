@@ -36,6 +36,7 @@ describe 'has_one relationships' do
     @car.engine_id = @engine.id
     @car.save
     @car.reload
+    @engine.reload
     @car.engine_id.should == @engine.id
     @car.engine.should == @engine
     
@@ -48,6 +49,7 @@ describe 'has_one relationships' do
     @car.engine = @engine
     @car.save
     @car.reload
+    @engine.reload
     @car.engine_id.should == @engine.id
     @car.engine.should == @engine
     

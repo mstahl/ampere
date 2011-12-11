@@ -55,24 +55,36 @@ describe 'belongs_to relationships', :belongs_to => true do
     @car.engine = @engine
     @car.save
     @engine.save
-    @car.engine.should == @engine
-    @engine.car.should == @car
+    
+    car    = Car.find(@car.id)
+    engine = Engine.find(@engine.id)
+    
+    car.engine.should == @engine
+    engine.car.should == @car
     
     # Cleanup
     @car.engine = nil
     @engine.car = nil
+    @car.save
+    @engine.save
   end
   
   it 'sets belongs_to pointer for has_one relationship that is set from the child' do
     @engine.car = @car
     @car.save
     @engine.save
-    @car.engine.should == @engine
-    @engine.car.should == @car
+    
+    car    = Car.find(@car.id)
+    engine = Engine.find(@engine.id)
+    
+    car.engine.should == @engine
+    engine.car.should == @car
     
     # Cleanup
     @car.engine = nil
     @engine.car = nil
+    @car.save
+    @engine.save
   end
   
   it 'sets belongs_to pointer for has_many relationship' do
