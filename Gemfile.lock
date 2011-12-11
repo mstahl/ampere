@@ -17,8 +17,8 @@ GEM
       git (>= 1.2.5)
       rake
     json (1.6.1)
+    multi_json (1.0.4)
     rake (0.9.2.2)
-    rcov (0.9.11)
     redis (2.2.2)
     rspec (2.7.0)
       rspec-core (~> 2.7.0)
@@ -29,6 +29,10 @@ GEM
       diff-lcs (~> 1.1.2)
     rspec-mocks (2.7.0)
     shoulda (2.11.3)
+    simplecov (0.5.4)
+      multi_json (~> 1.0.3)
+      simplecov-html (~> 0.5.3)
+    simplecov-html (0.5.3)
     term-ansicolor (1.0.7)
 
 PLATFORMS
@@ -38,7 +42,7 @@ DEPENDENCIES
   bundler (~> 1.0.0)
   cucumber
   jeweler (~> 1.6.4)
-  rcov
   redis
   rspec
   shoulda
+  simplecov

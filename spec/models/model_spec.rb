@@ -85,6 +85,13 @@ describe "Base models", :model => true do
       post.byline.should  == "Max"
       post.content.should == "Some content"
     end
+    
+    it "should refuse to reload a new record, that hasn't yet been saved" do
+      post = Post.new :title   => "A title",
+                      :byline  => "Max",
+                      :content => "Some content"
+      (->{post.reload}).should raise_error
+    end
 
     it "should be able to tell when it's new" do
       post = Post.new :title   => "A title",
