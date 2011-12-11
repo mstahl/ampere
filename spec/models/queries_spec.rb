@@ -8,29 +8,42 @@ describe 'queries', :queries => true do
     class Kitty < Ampere::Model
       field :name
       field :breed
+      field :age
+      field :color
       
       index :name
+      index :color
     end
     
     @kitty_paws = {
-      name: 'Kitty Paws',
-      breed: 'Domestic shorthair'
+      name:  'Kitty Paws',
+      breed: 'Domestic shorthair',
+      age:   19,
+      color: 'orange'
     }
     @nate = {
       name:  'Nate',
-      breed: 'Domestic shorthair'
+      breed: 'Domestic shorthair',
+      age:   17,
+      color: 'black'
     }
     @jinxii = {
       name:  'Jinxii',
-      breed: 'Chartreux'
+      breed: 'Chartreux',
+      age:   3,
+      color: 'grey'
     }
     @italics = {
       name:  'Italics',
-      breed: 'Siberian'
+      breed: 'Siberian',
+      age:   7,
+      color: 'orange'
     }
     @serif = {
       name:  'Serif',
-      breed: 'Siberian'
+      breed: 'Siberian',
+      age:   5,
+      color: 'grey'
     }
     [@kitty_paws, @nate, @jinxii, @italics, @serif]. each {|hash| Kitty.create hash}
   end
@@ -47,6 +60,12 @@ describe 'queries', :queries => true do
     Kitty.all.map(&:name).should include('Jinxii')
     Kitty.all.map(&:name).should include('Italics')
     Kitty.all.map(&:name).should include('Serif')
+  end
+  
+  context 'with no fields' do
+    it 'should return the empty set with no conditions given' do
+      Kitty.where().should be_empty
+    end
   end
   
   context 'with one field' do
