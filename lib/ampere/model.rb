@@ -10,6 +10,8 @@ module Ampere
     
     ### Instance methods
     
+    # Compares this model with another one. If they are literally the same object
+    # or have been stored and have the same ID, then they are equal.
     def ==(other)
       super or
         other.instance_of?(self.class) and
@@ -17,6 +19,7 @@ module Ampere
         other.id == id
     end
     
+    # Returns a Hash with all the fields and their values.
     def attributes
       {:id => @id}.tap do |hash|
         self.class.fields.each do |key|
@@ -25,18 +28,25 @@ module Ampere
       end
     end
     
+    # Deletes this instance out of the database.
     def destroy
       self.class.delete(@id)
     end
     
+    # Delegates to ==().
     def eql?(other)
       self == other
     end
     
+    # Calculates the hash of this object from the attributes hash instead of
+    # using Object.hash.
     def hash
       attributes.hash
     end
     
+    # Initialize an instance like this:
+    # 
+    #     Post.new :title => "Kitties: Are They Awesome?"
     def initialize(hash = {})
       hash.each do |k, v|
         if k == 'id' then
@@ -47,10 +57,12 @@ module Ampere
       end
     end
     
+    # Returns true if this record has not yet been saved.
     def new?
       @id.nil? or not Ampere.connection.exists(@id)
     end
     
+    # Reloads this record from the database.
     def reload
       if self.new? then
         raise "Can't reload a new record"
@@ -62,6 +74,7 @@ module Ampere
       self
     end
     
+    # Saves this record to the database.
     def save
       # Grab a fresh GUID from Redis by incrementing the "__guid" key
       if @id.nil? then
@@ -86,26 +99,32 @@ module Ampere
     
     ### Class methods
     
+    # Returns an array of all the records that have been stored.
     def self.all
       Ampere.connection.keys("#{to_s.downcase}.*").map{|m| find m}
     end
     
+    # Declares a belongs_to relationship to another model.
     def self.belongs_to(field_name, options = {})
       has_one field_name, options
     end
     
+    # Returns the number of instances of this record that have been stored.
     def self.count
       Ampere.connection.keys("#{to_s.downcase}.*").length
     end
     
+    # Instantiates and saves a new record.
     def self.create(hash = {})
       new(hash).save
     end
     
+    # Deletes the record with the given ID.
     def self.delete(id)
       Ampere.connection.del(id)
     end
     
+    # Declares a field. See the README for more details.
     def self.field(name, options = {})
       @fields         ||= []
       @field_defaults ||= {}
@@ -131,6 +150,7 @@ module Ampere
       @field_defaults
     end
     
+    # Finds the record with the given ID, or the first that matches the given conditions
     def self.find(options = {})
       if options.class == String then
         if Ampere.connection.exists(options) then
@@ -140,9 +160,11 @@ module Ampere
         end
       else
         # TODO Write a handler for this case, even if it's an exception
+        raise "Not implemented yet."
       end
     end
     
+    # Defines a has_one relationship with another model. See the README for more details.
     def self.has_one(field_name, options = {})
       referred_klass_name = (options[:class] or options['class'] or field_name)
       my_klass_name = to_s.downcase
@@ -163,6 +185,7 @@ module Ampere
       end
     end
     
+    # Defines a has_many relationship with another model. See the README for more details.
     def self.has_many(field_name, options = {})
       klass_name = (options[:class] or options['class'] or field_name.to_s.gsub(/s$/, ''))
       my_klass_name = to_s.downcase
@@ -182,6 +205,7 @@ module Ampere
       end
     end
     
+    # Defines an index. See the README for more details.
     def self.index(field_name, options = {})
       raise "Can't index a nonexistent field!" unless @fields.include?(field_name)
       
@@ -196,6 +220,8 @@ module Ampere
       @indices
     end
     
+    # Finds an array of records which match the given conditions. This method is
+    # much faster when all the fields given are indexed.
     def self.where(options = {})
       if options.empty? then
         []
