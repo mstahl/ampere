@@ -69,22 +69,24 @@ describe 'queries', :queries => true do
     end
   end
   
-  it 'should be able to find by two indexed fields at once', wip:true do
+  it 'should be able to find by two indexed fields at once' do
     foo = Kitty.where(:name => "Kitty Paws", :color => "orange")
     
     foo.count.should == 1
     foo.first.name.should == "Kitty Paws"
   end
   
-  it 'should be able to find by two non-indexed fields at once' do
+  it 'should be able to find by two non-indexed fields at once', wip:true do
+    # :breed and :age are not indexed
+    Kitty.where(:breed => "Domestic shorthair", :age => "17").count.should == 1
+  end
+  
+  it 'should be able to find by a mix of indexed and non-indexed fields' do
+    # :color is indexed, :breed is not
     Kitty.where(:color => "orange").count.should == 2
     Kitty.where(:breed => "Siberian").count.should == 2
     Kitty.where(:color => "orange", :breed => "Siberian").count.should == 1
     Kitty.where(:color => "orange", :breed => "Siberian").first.name.should == "Italics"
-  end
-  
-  it 'should be able to find by a mix of indexed and non-indexed fields' do
-    pending
   end
   
   ###
