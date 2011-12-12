@@ -72,13 +72,14 @@ module Ampere
     ### Various operators
     
     def ==(other)
-      self.class.fields.each do |f|
-        unless self.send(f) == other.send(f)
-          return false
-        end
-      end
-      
-      return true
+      super or
+        other.instance_of?(self.class) and
+        not id.nil? and
+        other.id == id
+    end
+    
+    def eql?(other)
+      self == (other)
     end
     
     ### Class methods
@@ -200,27 +201,29 @@ module Ampere
         indexed_fields    = options.keys & @indices
         nonindexed_fields = options.keys - @indices
         
-        puts "query:"
-        puts "    #{options}"
-        puts "fields:"
-        puts "    indexed:     #{indexed_fields}"
-        puts "    non-indexed: #{nonindexed_fields}"
-
-        results = []
+        results = nil
         
-        indexed_fields.each do |key|
-          result_ids = Ampere.connection.hget("ampere.index.#{to_s.downcase}.#{key}", options[key]).split(/:/)
-
-          results |= result_ids.map {|id| find(id)}
+        unless indexed_fields.empty?
+          indexed_fields.map {|key|
+            Ampere.connection.hget("ampere.index.#{to_s.downcase}.#{key}", options[key]).split(/:/).map {|id| find(id)}
+          }.each {|s|
+            return s if s.empty?
+          
+            if results.nil? then
+              results = s
+            else
+              results &= s
+            end
+          }
         end
-        puts '!'
-        p results
-        results = all if results.nil? or results.empty?
-        p results
-        puts '!'
-        nonindexed_fields.each do |key|
-          results.select!{|r| r.send(key) == options[key]}
+          
+        unless nonindexed_fields.empty?
+          results = all if results.nil?
+          nonindexed_fields.each do |key|
+            results.select!{|r| r.send(key) == options[key]}
+          end
         end
+        
         results
       end
     end

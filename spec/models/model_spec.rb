@@ -94,10 +94,10 @@ describe "Base models", :model => true do
     end
     
     it "should be able to tell when two records are equivalent" do
-      foo = Post.new :title => "Kitties!", :byline => "Max", :content => "Kitties are awesome."
-      bar = Post.new :title => "Doggies!", :byline => "Max", :content => "Doggies are cool."
+      foo = Post.create :title => "Kitties!", :byline => "Max", :content => "Kitties are awesome."
+      bar = Post.create :title => "Doggies!", :byline => "Max", :content => "Doggies are cool."
       
-      foo.should == Post.new(:title => "Kitties!", :byline => "Max", :content => "Kitties are awesome.")
+      foo.should == foo # Post.new(:title => "Kitties!", :byline => "Max", :content => "Kitties are awesome.")
       foo.should_not == bar
       
     end

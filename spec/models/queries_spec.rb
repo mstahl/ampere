@@ -1,7 +1,7 @@
 require File.join(File.dirname(__FILE__), "..", "spec_helper.rb")
 
 describe 'queries', :queries => true do
-  before :all do
+  before :each do
     Redis.new.flushall
     Ampere.connect
     
@@ -80,7 +80,10 @@ describe 'queries', :queries => true do
   end
   
   it 'should be able to find by two indexed fields at once', wip:true do
-    Kitty.where(:name => "Kitty Paws", :color => "orange").count.should == 1
+    foo = Kitty.where(:name => "Kitty Paws", :color => "orange")
+    
+    foo.count.should == 1
+    foo.first.name.should == "Kitty Paws"
   end
   
   it 'should be able to find by two non-indexed fields at once' do
