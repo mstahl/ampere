@@ -67,7 +67,7 @@ describe "Base models", :model => true do
       post = Post.new :title   => "A title",
                       :byline  => "Max",
                       :content => "Some content"
-      hash = post.to_hash
+      hash = post.attributes
       hash[:title].should   == "A title"
       hash[:byline].should  == "Max"
       hash[:content].should == "Some content"

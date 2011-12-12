@@ -1,5 +1,8 @@
 require 'simplecov'
-SimpleCov.start
+SimpleCov.start do
+  add_filter '/spec/'
+  add_filter '/features/'
+end
 
 require 'rspec'
 require 'rspec/autorun'
@@ -14,12 +17,5 @@ Dir[File.join(File.dirname(__FILE__), "spec", "support", "**", "*.rb")].each {|f
 
 # Not used yet
 RSpec.configure do |config|
-  # == Mock Framework
-  #
-  # If you prefer to use mocha, flexmock or RR, uncomment the appropriate line:
-  #
-  # config.mock_with :mocha
-  # config.mock_with :flexmock
-  # config.mock_with :rr
   config.mock_with :rspec
 end

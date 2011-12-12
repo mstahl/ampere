@@ -15,37 +15,27 @@ describe 'queries', :queries => true do
       index :color    # => Non-unique
     end
     
-    @kitty_paws = {
-      name:  'Kitty Paws',
-      breed: 'Domestic shorthair',
-      age:   19,
-      color: 'orange'
-    }
-    @nate = {
-      name:  'Nate',
-      breed: 'Domestic shorthair',
-      age:   17,
-      color: 'black'
-    }
-    @jinxii = {
-      name:  'Jinxii',
-      breed: 'Chartreux',
-      age:   3,
-      color: 'grey'
-    }
-    @italics = {
-      name:  'Italics',
-      breed: 'Siberian',
-      age:   7,
-      color: 'orange'
-    }
-    @serif = {
-      name:  'Serif',
-      breed: 'Siberian',
-      age:   5,
-      color: 'grey'
-    }
-    [@kitty_paws, @nate, @jinxii, @italics, @serif]. each {|hash| Kitty.create hash}
+    @kitty_paws = Kitty.create name:  'Kitty Paws',
+                               breed: 'Domestic shorthair',
+                               age:   19,
+                               color: 'orange'
+    @nate       = Kitty.create name:  'Nate',
+                               breed: 'Domestic shorthair',
+                               age:   17,
+                               color: 'black'
+    @jinxii     = Kitty.create name:  'Jinxii',
+                               breed: 'Chartreux',
+                               age:   3,
+                               color: 'grey'
+    @italics    = Kitty.create name:  'Italics',
+                               breed: 'Siberian',
+                               age:   7,
+                               color: 'orange'
+    @serif      = Kitty.create name:  'Serif',
+                               breed: 'Siberian',
+                               age:   5,
+                               color: 'grey'
+    [@kitty_paws, @nate, @jinxii, @italics, @serif]. each {|k| k.reload}
   end
   
   ### 

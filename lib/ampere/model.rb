@@ -10,8 +10,31 @@ module Ampere
     
     ### Instance methods
     
+    def ==(other)
+      super or
+        other.instance_of?(self.class) and
+        not id.nil? and
+        other.id == id
+    end
+    
+    def attributes
+      {:id => @id}.tap do |hash|
+        self.class.fields.each do |key|
+          hash[key] = self.send(key)
+        end
+      end
+    end
+    
     def destroy
       self.class.delete(@id)
+    end
+    
+    def eql?(other)
+      self == other
+    end
+    
+    def hash
+      attributes.hash
     end
     
     def initialize(hash = {})
@@ -45,7 +68,7 @@ module Ampere
         @id = "#{self.class.to_s.downcase}.#{Ampere.connection.incr('__guid')}"
       end
       
-      self.to_hash.each do |k, v|
+      self.attributes.each do |k, v|
         Ampere.connection.hset(@id, k, v)
         
         # If there's an index on this field, also set a reference to this
@@ -59,27 +82,6 @@ module Ampere
         end
       end
       self
-    end
-    
-    def to_hash
-      {:id => @id}.tap do |hash|
-        self.class.fields.each do |key|
-          hash[key] = self.send(key)
-        end
-      end
-    end
-    
-    ### Various operators
-    
-    def ==(other)
-      super or
-        other.instance_of?(self.class) and
-        not id.nil? and
-        other.id == id
-    end
-    
-    def eql?(other)
-      self == (other)
     end
     
     ### Class methods
