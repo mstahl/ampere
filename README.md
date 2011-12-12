@@ -39,6 +39,25 @@ This will define attr accessors for each field. Then to instantiate it,
     Post.new :title    => "BREAKING: Kitties Are Awesome", 
              :contents => "This just in! Kitties are super adorable, and super great."
 
+Later, when you want to retrieve it, you can use the where() method (although this will
+be slower if one of the keys you are searching by isn't indexed).
+
+    post = Post.where(:title => "BREAKING: Kitties Are Awesome").first
+
+### Indexes
+
+Indexes work similar to Mongoid. They are non-unique.
+
+    class Student < Ampere::Model
+      field :last_name
+      field :first_name
+      
+      index :last_name
+    end
+
+This will create an index of the last names of students, and lookups by
+last_name will happen faster.
+
 ## Contributing to ampere
  
   * Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet
