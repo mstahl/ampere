@@ -16,9 +16,9 @@ Jeweler::Tasks.new do |gem|
   # gem is a Gem::Specification... see http://docs.rubygems.org/read/chapter/20 for more options
   gem.name = "ampere"
   gem.homepage = "http://github.com/mstahl/ampere"
-  gem.license = "MIT"
+  gem.license = "EPL"
   gem.summary = %Q{A pure Ruby ORM for Redis.}
-  gem.description = %Q{TODO: longer description of your gem}
+  gem.description = %Q{An ActiveRecord/Mongoid-esque object model for the Redis key/value data store.}
   gem.email = "max@villainousindustri.es"
   gem.authors = ["Max Thom Stahl"]
   # dependencies defined in Gemfile
@@ -30,14 +30,6 @@ Rake::TestTask.new(:test) do |test|
   test.libs << 'lib' << 'test'
   test.pattern = 'test/**/test_*.rb'
   test.verbose = true
-end
-
-require 'rcov/rcovtask'
-Rcov::RcovTask.new do |test|
-  test.libs << 'test'
-  test.pattern = 'test/**/test_*.rb'
-  test.verbose = true
-  test.rcov_opts << '--exclude "gems/*"'
 end
 
 require 'cucumber/rake/task'
