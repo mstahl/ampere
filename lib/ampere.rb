@@ -1,4 +1,5 @@
 require "redis"
+require "pp"
 
 module Ampere
   @@connection = nil

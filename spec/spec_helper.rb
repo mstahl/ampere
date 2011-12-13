@@ -14,7 +14,6 @@ require 'ampere'
 # in spec/support/ and its subdirectories.
 Dir[File.join(File.dirname(__FILE__), "spec", "support", "**", "*.rb")].each {|f| puts "REQUIRING: #{f}"; require f}
 
-
 # Not used yet
 RSpec.configure do |config|
   config.mock_with :rspec

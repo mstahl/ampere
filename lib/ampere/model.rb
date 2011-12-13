@@ -1,5 +1,3 @@
-require 'pp'
-
 module Ampere
   class Model
     attr_reader :id
@@ -95,6 +93,22 @@ module Ampere
         end
       end
       self
+    end
+    
+    def update_attribute(key, value)
+      raise "Cannot update a nonexistent field!" unless self.class.fields.include?(key)
+      self.send("#{key}=", value)
+      Ampere.connection.hset(@id, key, value)
+    end
+    
+    def update_attributes(hash = {})
+      # The efficient way, that I haven't figured out how to do yet:
+      # Ampere.connection.hmset(@id, hash)
+      
+      # The inefficient way I know how to do right now:
+      hash.each do |k, v|
+        update_attribute(k, v)
+      end
     end
     
     ### Class methods
