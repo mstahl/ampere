@@ -11,9 +11,7 @@ describe 'queries', :queries => true do
       field :year
     end
     
-    @bike = Motorcycle.create make:  "Honda",
-                               model: "CB400",
-                               year:  "1990"
+    @bike = Motorcycle.create make: "Honda", model: "CB400", year: "1990"
   end
   
   ###
