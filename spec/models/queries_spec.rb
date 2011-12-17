@@ -60,12 +60,12 @@ describe 'queries', :queries => true do
   
   context 'with one field' do
     it 'should be able to find by an indexed field using where()' do
-      Kitty.where(:name => 'Nate').map(&:name).should include('Nate')
+      Kitty.where(:name => 'Nate').to_a.map(&:name).should include('Nate')
     end
   
     it 'should be able to find by a non-indexed field using where()' do
-      Kitty.where(:breed => 'Siberian').map(&:name).should include('Italics')
-      Kitty.where(:breed => 'Siberian').map(&:name).should include('Serif')
+      Kitty.where(:breed => 'Siberian').to_a.map(&:name).should include('Italics')
+      Kitty.where(:breed => 'Siberian').to_a.map(&:name).should include('Serif')
     end
   end
   

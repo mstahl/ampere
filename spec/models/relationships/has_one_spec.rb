@@ -59,7 +59,11 @@ describe 'has_one relationships' do
   end
   
   it 'can delete the object related to it in a has_one relationship' do
-    pending
+    @car.engine = @engine
+    @car.engine.destroy
+    @car.reload
+    @car.engine.should be_nil
+    Engine.find(@engine.id).should be_nil
   end
   
   ###

@@ -189,7 +189,7 @@ module Ampere
         end
       else
         # TODO Write a handler for this case, even if it's an exception
-        raise "Not implemented yet."
+        raise "Cannot find by #{options.class} yet"
       end
     end
     
@@ -259,23 +259,23 @@ module Ampere
     # much faster when all the fields given are indexed.
     def self.where(options = {})
       if options.empty? then
-        []
+        Ampere::Collection.new(eval(to_s), [])
       else
         indexed_fields    = (options.keys & @indices) + compound_indices_for(options)
-        nonindexed_fields = options.keys - @indices
+        nonindexed_fields = (options.keys - @indices) - compound_indices_for(options).flatten
         
         results = nil
         
         unless indexed_fields.empty?
           indexed_fields.map {|key|
             if key.class == String or key.class == Symbol then
-              Ampere.connection.hget("ampere.index.#{to_s.downcase}.#{key}", options[key]).split(/:/).map {|id| find(id)}
+              Ampere.connection.hget("ampere.index.#{to_s.downcase}.#{key}", options[key]).split(/:/) #.map {|id| find(id)}
             else
               # Compound index
               Ampere.connection.hget(
                 "ampere.index.#{to_s.downcase}.#{key.join(':')}", 
                 key.map{|k| options[k]}.join(':')
-              ).split(/:/).map {|id| find(id)}
+              ).split(/:/) #.map {|id| find(id)}
             end
           }.each {|s|
             return s if s.empty?
@@ -290,12 +290,14 @@ module Ampere
           
         unless nonindexed_fields.empty?
           results = all if results.nil?
+          results.map!{|r| r.class == String ? find(r) : r}
           nonindexed_fields.each do |key|
             results.select!{|r| r.send(key) == options[key]}
           end
         end
         
-        results
+        # TODO The eval(to_s) trick seems a little... ghetto. 
+        Ampere::Collection.new(eval(to_s), results.reverse)
       end
     end
     

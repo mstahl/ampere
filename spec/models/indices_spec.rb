@@ -11,7 +11,7 @@ describe "Model indices", :indices => true do
       field :student_id_num
       
       index :last_name
-      index :student_id_num
+      index :student_id_num, :unique => true
     end
     
     @a = Student.create :first_name     => "Hannibal",
@@ -36,8 +36,8 @@ describe "Model indices", :indices => true do
   it 'should find an array of values for a non-unique index' do
     smiths = Student.where(:last_name => "Smith")
     smiths.should_not be_empty
-    smiths.map(&:first_name).should include("Hannibal")
-    smiths.map(&:first_name).should include("Cindy")
+    smiths.to_a.map(&:first_name).should include("Hannibal")
+    smiths.to_a.map(&:first_name).should include("Cindy")
   end
   
   it 'should find a single value for a unique index' do
@@ -49,13 +49,41 @@ describe "Model indices", :indices => true do
   it 'should refuse to create an index on a field that does not exist' do
     (->{
       class Student < Ampere::Model
+        field :this_field_exists
+
+        index :this_field_exists
+      end
+    }).should_not raise_error
+    (->{
+      class Student < Ampere::Model
         index :this_field_does_not_exist
+      end
+    }).should raise_error
+    (->{
+      class Student < Ampere::Model
+        field :this_field_exists
+        
+        index [:this_field_exists, :but_this_one_does_not]
       end
     }).should raise_error
   end
   
   it 'should enforce the uniqueness of unique single-field indices' do
     pending
+    # The student_id_num field of Student is unique. If two Students
+    # with the same student_id_num are stored, the second should not 
+    # save successfully, throwing an exception instead.
+    (->{
+      Student.create :first_name     => "Bobby",
+                     :last_name      => "Tables",
+                     :student_id_num => "2000"
+    }).should_not raise_error
+    (->{
+      Student.create :first_name     => "Johnny",
+                     :last_name      => "Tables",
+                     :student_id_num => "2000"
+    }).should raise_error
+    Student.where(:student_id_num => "2000").first.first_name.should == "Bobby"
   end
   
   context 'compound indices' do
