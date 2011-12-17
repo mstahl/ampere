@@ -54,6 +54,37 @@ describe "Model indices", :indices => true do
     }).should raise_error
   end
   
+  it 'should enforce the uniqueness of unique single-field indices' do
+    pending
+  end
+  
+  context 'compound indices' do
+    before :all do
+      class Professor < Ampere::Model
+        field :first_name
+        field :last_name
+        field :employee_id_number
+        
+        index :employee_id_number
+        index [:first_name, :last_name]
+      end
+    end
+    
+    ###
+    
+    it 'should define compound indices' do
+      pending
+    end
+    
+    it 'should be able to search on both fields of a compound index' do
+      pending
+    end
+    
+    it 'should still be able to search on just one field of a compound index' do
+      pending
+    end
+  end
+  
   ###
   
   after :all do

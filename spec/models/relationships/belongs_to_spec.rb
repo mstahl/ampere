@@ -88,6 +88,7 @@ describe 'belongs_to relationships', :belongs_to => true do
   end
   
   it 'sets belongs_to pointer for has_many relationship' do
+    pending
   end
   
   ###

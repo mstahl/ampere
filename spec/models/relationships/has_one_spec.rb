@@ -58,6 +58,10 @@ describe 'has_one relationships' do
     @car.engine.should be_nil
   end
   
+  it 'can delete the object related to it in a has_one relationship' do
+    pending
+  end
+  
   ###
   
   after :all do

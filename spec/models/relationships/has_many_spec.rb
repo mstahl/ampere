@@ -54,9 +54,11 @@ describe 'has_many relationships', :has_many => true do
   end
   
   it 'should be able to remove items from has_many relationships' do
+    pending
   end
   
   it 'should be able to query has_many relationships' do
+    pending
   end
   
   ###
