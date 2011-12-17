@@ -81,14 +81,24 @@ module Ampere
       
       self.attributes.each do |k, v|
         Ampere.connection.hset(@id, k, v)
-        
-        # If there's an index on this field, also set a reference to this
-        # model from there.
-        if self.class.indices.include?(k) then
+      end
+      
+      self.class.indices.each do |index|
+        if index.class == String or index.class == Symbol then
           Ampere.connection.hset(
-            "ampere.index.#{self.class.to_s.downcase}.#{k}", 
-            v, 
-            ([@id] | (Ampere.connection.hget("ampere.index.#{self.class.to_s.downcase}.#{k}", v) or "").split(/:/)).join(":")
+            "ampere.index.#{self.class.to_s.downcase}.#{index}", 
+            instance_variable_get("@#{index}"), 
+            ([@id] | (Ampere.connection.hget("ampere.index.#{self.class.to_s.downcase}.#{index}", instance_variable_get("@#{index}")) or "")
+            .split(/:/)).join(":")
+          )
+        elsif index.class == Array then
+          key = index.map{|i| instance_variable_get("@#{i}")}.join(':')
+          val = ([@id] | (Ampere.connection.hget("ampere.index.#{self.class.to_s.downcase}.#{index}", key) or "")
+                .split(/:/)).join(":")
+          Ampere.connection.hset(
+            "ampere.index.#{self.class.to_s.downcase}.#{index.join(':')}",
+            key,
+            val
           )
         end
       end
@@ -121,6 +131,11 @@ module Ampere
     # Declares a belongs_to relationship to another model.
     def self.belongs_to(field_name, options = {})
       has_one field_name, options
+    end
+    
+    # Like @indices, but only returns the compound indices this class defines.
+    def self.compound_indices
+      @indices.select{|i| i.class == Array}
     end
     
     # Returns the number of instances of this record that have been stored.
@@ -221,11 +236,17 @@ module Ampere
     
     # Defines an index. See the README for more details.
     def self.index(field_name, options = {})
-      raise "Can't index a nonexistent field!" unless @fields.include?(field_name)
-      
       @fields         ||= []
       @field_defaults ||= {}
       @indices        ||= []
+      if field_name.class == String or field_name.class == Symbol then
+        raise "Can't index a nonexistent field!" unless @fields.include?(field_name)
+      elsif field_name.class == Array then
+        field_name.each{|f| raise "Can't index a nonexistent field!" unless @fields.include?(f)}
+        field_name.sort!
+      else
+        raise "Can't index a #{field_name.class}"
+      end
       
       @indices << field_name
     end
@@ -240,14 +261,22 @@ module Ampere
       if options.empty? then
         []
       else
-        indexed_fields    = options.keys & @indices
+        indexed_fields    = (options.keys & @indices) + compound_indices_for(options)
         nonindexed_fields = options.keys - @indices
         
         results = nil
         
         unless indexed_fields.empty?
           indexed_fields.map {|key|
-            Ampere.connection.hget("ampere.index.#{to_s.downcase}.#{key}", options[key]).split(/:/).map {|id| find(id)}
+            if key.class == String or key.class == Symbol then
+              Ampere.connection.hget("ampere.index.#{to_s.downcase}.#{key}", options[key]).split(/:/).map {|id| find(id)}
+            else
+              # Compound index
+              Ampere.connection.hget(
+                "ampere.index.#{to_s.downcase}.#{key.join(':')}", 
+                key.map{|k| options[k]}.join(':')
+              ).split(/:/).map {|id| find(id)}
+            end
           }.each {|s|
             return s if s.empty?
           
@@ -269,6 +298,15 @@ module Ampere
         results
       end
     end
+    
+    private
+    
+    def self.compound_indices_for(query)
+      compound_indices.select{|ci|
+        (query.keys - ci).empty?
+      }
+    end
+    
     
   end
   

@@ -66,18 +66,37 @@ describe "Model indices", :indices => true do
         field :employee_id_number
         
         index :employee_id_number
-        index [:first_name, :last_name]
+        index [:last_name, :first_name]
       end
     end
     
     ###
     
     it 'should define compound indices' do
-      pending
+      Professor.indices.should include([:first_name, :last_name])
+
+      Ampere.connection.exists("ampere.index.professor.first_name:last_name").should be_false
+      Professor.create :first_name         => "Warren",
+                       :last_name          => "Satterfield",
+                       :employee_id_number => "31415926"
+      Professor.count.should == 1
+      Ampere.connection.exists("ampere.index.professor.first_name:last_name").should be_true
     end
     
     it 'should be able to search on both fields of a compound index' do
-      pending
+      Professor.create :first_name         => "Ava",
+                       :last_name          => "Jenkins",
+                       :employee_id_number => "31415927"
+      Professor.create :first_name         => "Lazaro",
+                       :last_name          => "Adams",
+                       :employee_id_number => "31415928"
+      Professor.create :first_name         => "Brandi",
+                       :last_name          => "O'Kon",
+                       :employee_id_number => "31415929"
+
+      brandi = Professor.where(:first_name => "Brandi", :last_name => "O'Kon")
+      brandi.count.should == 1
+      brandi.first.employee_id_number.should == "31415929"
     end
     
     it 'should still be able to search on just one field of a compound index' do
