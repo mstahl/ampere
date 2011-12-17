@@ -58,6 +58,21 @@ Indexes work similar to Mongoid. They are non-unique.
 This will create an index of the last names of students, and lookups by
 last_name will happen faster.
 
+You can also define indices on multiple fields.
+    
+    class Student < Ampere::Model
+      field :last_name
+      field :first_name
+      
+      index [:last_name, :first_name]
+    end
+
+Queries performed on compound indices will always run faster than queries on multiple
+individual indices, which will always run faster than queries on unindexed fields. 
+
+_**Warning:**_ If you query on an un-indexed field, the returned result set will not be
+evaluated lazily!
+
 ## Contributing to ampere
  
   * Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet
