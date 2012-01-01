@@ -60,6 +60,7 @@ describe "Base models", :model => true do
         end
         
         it "shouldn't care what the value types are assigned to a field with no type defined" do
+          pending "Types not implemented yet."
           # Assign a string to the :make of a motorcycle.
           (->{
             Post.create :title     => "",
@@ -80,6 +81,7 @@ describe "Base models", :model => true do
         end
         
         it "should, given a field's type, only accept values for that field of that type", :wip => true do
+          pending "Types not implemented yet."
           cycle = Motorcycle.create :make         => 'Honda',
                                     :model        => 'CB450SC',
                                     :year         => 1986,
