@@ -18,36 +18,78 @@ describe "Base models", :model => true do
     end
     
     # # #
+
+    context 'fields' do
+      it "should define attr accessors and suchlike" do
+        post = Post.new
+        post.should respond_to(:title)
+        post.should respond_to(:"title=")
+        post.should respond_to(:byline)
+        post.should respond_to(:"byline=")
+        post.should respond_to(:content)
+        post.should respond_to(:"content=")
+      end
     
-    it "should define attr accessors and suchlike" do
-      post = Post.new
-      post.should respond_to(:title)
-      post.should respond_to(:"title=")
-      post.should respond_to(:byline)
-      post.should respond_to(:"byline=")
-      post.should respond_to(:content)
-      post.should respond_to(:"content=")
-    end
+      it "should know about its own fields" do
+        Post.fields.should include(:title)
+        Post.fields.should include(:byline)
+        Post.fields.should include(:content)
+      end
     
-    it "should know about its own fields" do
-      Post.fields.should include(:title)
-      Post.fields.should include(:byline)
-      Post.fields.should include(:content)
-    end
+      it "should have default values definable" do
+        class Comment < Ampere::Model
+          field :subject, :default => "No subject"
+          field :content
+        end
+      
+        comment = Comment.new
+        comment.subject.should == "No subject"
+        comment.content.should be_nil
+      end
     
-    it "should have default values definable" do
-      class Comment < Ampere::Model
-        field :subject, :default => "No subject"
-        field :content
+      it "should raise an exception when you try to set a field that doesn't exist" do
+        (->{Post.new :shazbot => "This isn't the right key"}).should raise_error
       end
       
-      comment = Comment.new
-      comment.subject.should == "No subject"
-      comment.content.should be_nil
-    end
-    
-    it "should raise an exception when you try to set a field that doesn't exist" do
-      (->{Post.new :shazbot => "This isn't the right key"}).should raise_error
+      context 'types', :types => true do
+        before :all do
+          # Just adding a field with a type to Post
+          class Post < Ampere::Model
+            field :pageviews, :type => Integer, :default => 0
+          end
+        end
+        
+        it "shouldn't care what the value types are assigned to a field with no type defined" do
+          # Assign a string to the :make of a motorcycle.
+          (->{
+            Post.create :title     => "",
+                        :byline    => "",
+                        :content   => "",
+                        :pageviews => 1234
+            
+            
+          }).should_not raise_error
+          
+          # Assign an integer to the :make of a motorcycle, for some reason.
+          (->{
+            Motorcycle.create :make         => 1234,
+                              :model        => 'CB450SC',
+                              :year         => 1986,
+                              :displacement => 450.0
+          }).should_not raise_error
+        end
+        
+        it "should, given a field's type, only accept values for that field of that type", :wip => true do
+          cycle = Motorcycle.create :make         => 'Honda',
+                                    :model        => 'CB450SC',
+                                    :year         => 1986,
+                                    :displacement => 450.0
+          
+          # Try to assign a string to :year, raising an error.
+          (->{cycle.year = "this is not a year"}).should raise_error
+          (->{cycle.year = 1996}).should_not raise_error
+        end
+      end
     end
     
     it "should have a 'new' method that works like we'd expect" do
