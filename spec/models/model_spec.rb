@@ -59,10 +59,10 @@ describe "Base models", :model => true do
           end
         end
         
-        it "shouldn't care what the value types are assigned to a field with no type defined", :wip => true do
-          # Assign a string to the :make of a motorcycle.
+        it "shouldn't care what the value types are assigned to a field with no type defined" do
+          # Assign an int to the :title of a Post.
           (->{
-            Post.create :title     => "",
+            Post.create :title     => 1234,
                         :byline    => "",
                         :content   => "",
                         :pageviews => 1234
@@ -70,24 +70,25 @@ describe "Base models", :model => true do
             
           }).should_not raise_error
           
-          # Assign an integer to the :make of a motorcycle, for some reason.
+          # Assign a string to the :title of a Post.
           (->{
-            Motorcycle.create :make         => 1234,
-                              :model        => 'CB450SC',
-                              :year         => 1986,
-                              :displacement => 450.0
+            Post.create :title     => "1234",
+                        :byline    => "",
+                        :content   => "",
+                        :pageviews => 1234
           }).should_not raise_error
         end
         
-        it "should, given a field's type, only accept values for that field of that type", :wip => true do
-          cycle = Motorcycle.create :make         => 'Honda',
-                                    :model        => 'CB450SC',
-                                    :year         => 1986,
-                                    :displacement => 450.0
+        it "should, given a field's type, only accept values for that field of that type" do
+          pending 'types not defined yet'
+          post = Post.create :title     => "",
+                             :byline    => "",
+                             :content   => "",
+                             :pageviews => 1234
           
           # Try to assign a string to :year, raising an error.
-          (->{cycle.year = "this is not a year"}).should raise_error
-          (->{cycle.year = 1996}).should_not raise_error
+          (->{post.pageviews = "this is not an integer"}).should raise_error
+          (->{post.pageviews = 4321}).should_not raise_error
         end
       end
     end
