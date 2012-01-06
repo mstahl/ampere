@@ -140,9 +140,15 @@ describe "Base models", :model => true do
       foo = Post.create :title => "Kitties!", :byline => "Max", :content => "Kitties are awesome."
       bar = Post.create :title => "Doggies!", :byline => "Max", :content => "Doggies are cool."
       
-      foo.should == foo # Post.new(:title => "Kitties!", :byline => "Max", :content => "Kitties are awesome.")
+      foo.should == foo
       foo.should_not == bar
       
+      foo.should eql(foo)
+      foo.should_not eql(bar)
+    end
+    
+    it "should also be able to determine the hash of a record, for equivalence testing" do
+      Post.new(title: "Guinea Pigs", byline: "Max", content: "Guinea pigs are super cute.").hash.is_a?(Fixnum).should be_true
     end
 
     it "should be able to tell when it's new" do
@@ -166,7 +172,7 @@ describe "Base models", :model => true do
     
     it "should be destroyable by itself" do
       another_post = Post.create :title   => "This one too, probably.",
-                                 :byline  => "Just seems like one bit",
+                                 :byline  => "Just seems like one big",
                                  :content => "non sequitor."
       id = another_post.id
       another_post.destroy.should == 1
