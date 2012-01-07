@@ -59,6 +59,12 @@ describe "Base models", :model => true do
           end
         end
         
+        it "should set field types for fields that have a type" do
+          Post.field_types.should_not be_nil
+          Post.field_types[:pageviews].should_not be_nil
+          Post.field_types[:pageviews].should == 'Integer'
+        end
+        
         it "shouldn't care what the value types are assigned to a field with no type defined" do
           # Assign an int to the :title of a Post.
           (->{
@@ -79,8 +85,7 @@ describe "Base models", :model => true do
           }).should_not raise_error
         end
         
-        it "should, given a field's type, only accept values for that field of that type" do
-          pending 'types not defined yet'
+        it "should, given a field's type, only accept values for that field of that type", wip:true do
           post = Post.create :title     => "",
                              :byline    => "",
                              :content   => "",

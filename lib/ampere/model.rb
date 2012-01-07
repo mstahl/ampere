@@ -5,6 +5,7 @@ module Ampere
     @fields         = []
     @field_defaults = {}
     @indices        = []
+    @field_types    = {}
     
     ### Instance methods
     
@@ -158,6 +159,7 @@ module Ampere
       @fields         ||= []
       @field_defaults ||= {}
       @indices        ||= []
+      @field_types    ||= {}
       
       @fields << name
       
@@ -166,8 +168,21 @@ module Ampere
       # Handle default value
       @field_defaults[name] = options[:default]
       
+      # Handle type, if any
+      if options[:type] then
+        @field_types[:"#{name}"] = options[:type].to_s
+      end
+      
       define_method :"#{name}" do
         instance_variable_get("@#{name}") or self.class.field_defaults[name]
+      end
+      
+      define_method :"#{name}=" do |val|
+        if not self.class.field_types[:"#{name}"] or val.is_a?(eval(self.class.field_types[:"#{name}"])) then
+          instance_variable_set("@#{name}", val)
+        else
+          raise "Cannot set field of type #{self.class.field_types[name.to_sym]} with #{val.class} value"
+        end
       end
     end
     
@@ -177,6 +192,10 @@ module Ampere
     
     def self.field_defaults
       @field_defaults
+    end
+    
+    def self.field_types
+      @field_types
     end
     
     # Finds the record with the given ID, or the first that matches the given conditions
@@ -239,6 +258,7 @@ module Ampere
       @fields         ||= []
       @field_defaults ||= {}
       @indices        ||= []
+      @field_types    ||= {}
       if field_name.class == String or field_name.class == Symbol then
         raise "Can't index a nonexistent field!" unless @fields.include?(field_name)
       elsif field_name.class == Array then
