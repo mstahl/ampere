@@ -85,7 +85,7 @@ describe "Base models", :model => true do
           }).should_not raise_error
         end
         
-        it "should, given a field's type, only accept values for that field of that type", wip:true do
+        it "should, given a field's type, only accept values for that field of that type" do
           post = Post.create :title     => "",
                              :byline    => "",
                              :content   => "",
@@ -185,10 +185,9 @@ describe "Base models", :model => true do
     end
     
     it "should be findable by ID" do
-      post = Post.new :title   => "foo",
-                      :byline  => "bar",
-                      :content => "baz"
-      post.save
+      post = Post.create :title   => "foo",
+                         :byline  => "bar",
+                         :content => "baz"
       Post.find(post.id).should == post
       # Since we're using GUIDs, this should also be true:
       post2 = Post.find(post.id)

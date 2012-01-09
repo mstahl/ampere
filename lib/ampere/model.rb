@@ -46,12 +46,12 @@ module Ampere
     # Initialize an instance like this:
     # 
     #     Post.new :title => "Kitties: Are They Awesome?"
-    def initialize(hash = {})
+    def initialize(hash = {}, unmarshal = false)
       hash.each do |k, v|
         if k == 'id' then
-          @id = v
+          @id = unmarshal ? Marshal.load(v) : v
         else
-          self.send("#{k}=", v)
+          self.send("#{k}=", unmarshal ? Marshal.load(v) : v)
         end
       end
     end
@@ -68,7 +68,7 @@ module Ampere
       end
       
       self.class.fields.each do |k|
-        self.send("#{k}=", Ampere.connection.hget(@id, k))
+        self.send("#{k}=", Marshal.load(Ampere.connection.hget(@id, k)))
       end
       self
     end
@@ -81,7 +81,7 @@ module Ampere
       end
       
       self.attributes.each do |k, v|
-        Ampere.connection.hset(@id, k, v)
+        Ampere.connection.hset(@id, k, Marshal.dump(v))
       end
       
       self.class.indices.each do |index|
@@ -109,7 +109,7 @@ module Ampere
     def update_attribute(key, value)
       raise "Cannot update a nonexistent field!" unless self.class.fields.include?(key)
       self.send("#{key}=", value)
-      Ampere.connection.hset(@id, key, value)
+      Ampere.connection.hset(@id, key, Marshal.dump(value))
     end
     
     def update_attributes(hash = {})
@@ -163,7 +163,7 @@ module Ampere
       
       @fields << name
       
-      attr_accessor :"#{name}"
+      # attr_accessor :"#{name}"
       
       # Handle default value
       @field_defaults[name] = options[:default]
@@ -202,7 +202,7 @@ module Ampere
     def self.find(options = {})
       if options.class == String then
         if Ampere.connection.exists(options) then
-          new(Ampere.connection.hgetall(options))
+          new(Ampere.connection.hgetall(options), true)
         else
           nil
         end
