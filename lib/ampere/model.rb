@@ -51,7 +51,7 @@ module Ampere
         if k == 'id' then
           @id = unmarshal ? Marshal.load(v) : v
         else
-          self.send("#{k}=", unmarshal ? Marshal.load(v) : v)
+          self.send("#{k}=", (unmarshal and not k =~ /_id$/) ? Marshal.load(v) : v)
         end
       end
     end
@@ -68,7 +68,12 @@ module Ampere
       end
       
       self.class.fields.each do |k|
-        self.send("#{k}=", Marshal.load(Ampere.connection.hget(@id, k)))
+        v = Ampere.connection.hget(@id, k)
+        if k =~ /_id$/ then
+          self.send("#{k}=", v)
+        else
+          self.send("#{k}=", Marshal.load(v))
+        end
       end
       self
     end

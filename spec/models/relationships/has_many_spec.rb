@@ -41,15 +41,7 @@ describe 'has_many relationships', :has_many => true do
   
   it 'should be able to add items to has_many relationships', wip:true do
     @car.passengers = @car.passengers + [@driver]
-    puts "1{"
-    pp @car.passengers
-    puts "}"
-    
     @car.passengers = @car.passengers + [@passenger]
-    puts "2{"
-    pp @car.passengers
-    puts "}"
-    
 
     @car.save
     @car.reload
