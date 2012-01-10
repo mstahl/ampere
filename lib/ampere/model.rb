@@ -86,7 +86,7 @@ module Ampere
       end
       
       self.attributes.each do |k, v|
-        Ampere.connection.hset(@id, k, Marshal.dump(v))
+        Ampere.connection.hset(@id, k, k =~ /_id$/ ? v : Marshal.dump(v))
       end
       
       self.class.indices.each do |index|
