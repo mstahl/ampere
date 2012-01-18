@@ -87,9 +87,9 @@ describe 'belongs_to relationships', :belongs_to => true do
     @engine.save
   end
   
-  it 'sets belongs_to pointer for has_many relationship', wip:true do
-    @car.passengers << @driver
-    @car.passengers << @passenger
+  it 'sets belongs_to pointer for has_many relationship' do
+    @car.passengers = @car.passengers + [@driver]
+    @car.passengers = @car.passengers + [@passenger]
     @car.save
     
     @driver.reload
