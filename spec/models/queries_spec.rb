@@ -77,7 +77,7 @@ describe 'queries', :queries => true do
   
   it 'should be able to find by two non-indexed fields at once' do
     # :breed and :age are not indexed
-    Kitty.where(:breed => "Domestic shorthair", :age => "17").count.should == 1
+    Kitty.where(:breed => "Domestic shorthair", :age => 17).count.should == 1
   end
   
   it 'should be able to find by a mix of indexed and non-indexed fields' do

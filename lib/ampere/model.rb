@@ -5,6 +5,7 @@ module Ampere
     @fields         = []
     @field_defaults = {}
     @indices        = []
+    @field_types    = {}
     
     ### Instance methods
     
@@ -45,12 +46,12 @@ module Ampere
     # Initialize an instance like this:
     # 
     #     Post.new :title => "Kitties: Are They Awesome?"
-    def initialize(hash = {})
+    def initialize(hash = {}, unmarshal = false)
       hash.each do |k, v|
         if k == 'id' then
-          @id = v
+          @id = unmarshal ? Marshal.load(v) : v
         else
-          self.send("#{k}=", v)
+          self.send("#{k}=", (unmarshal and not k =~ /_id$/) ? Marshal.load(v) : v)
         end
       end
     end
@@ -67,7 +68,12 @@ module Ampere
       end
       
       self.class.fields.each do |k|
-        self.send("#{k}=", Ampere.connection.hget(@id, k))
+        v = Ampere.connection.hget(@id, k)
+        if k =~ /_id$/ then
+          self.send("#{k}=", v)
+        else
+          self.send("#{k}=", Marshal.load(v))
+        end
       end
       self
     end
@@ -80,7 +86,7 @@ module Ampere
       end
       
       self.attributes.each do |k, v|
-        Ampere.connection.hset(@id, k, v)
+        Ampere.connection.hset(@id, k, k =~ /_id$/ ? v : Marshal.dump(v))
       end
       
       self.class.indices.each do |index|
@@ -108,7 +114,7 @@ module Ampere
     def update_attribute(key, value)
       raise "Cannot update a nonexistent field!" unless self.class.fields.include?(key)
       self.send("#{key}=", value)
-      Ampere.connection.hset(@id, key, value)
+      Ampere.connection.hset(@id, key, Marshal.dump(value))
     end
     
     def update_attributes(hash = {})
@@ -158,16 +164,30 @@ module Ampere
       @fields         ||= []
       @field_defaults ||= {}
       @indices        ||= []
+      @field_types    ||= {}
       
       @fields << name
       
-      attr_accessor :"#{name}"
+      # attr_accessor :"#{name}"
       
       # Handle default value
       @field_defaults[name] = options[:default]
       
+      # Handle type, if any
+      if options[:type] then
+        @field_types[:"#{name}"] = options[:type].to_s
+      end
+      
       define_method :"#{name}" do
         instance_variable_get("@#{name}") or self.class.field_defaults[name]
+      end
+      
+      define_method :"#{name}=" do |val|
+        if not self.class.field_types[:"#{name}"] or val.is_a?(eval(self.class.field_types[:"#{name}"])) then
+          instance_variable_set("@#{name}", val)
+        else
+          raise "Cannot set field of type #{self.class.field_types[name.to_sym]} with #{val.class} value"
+        end
       end
     end
     
@@ -179,11 +199,15 @@ module Ampere
       @field_defaults
     end
     
+    def self.field_types
+      @field_types
+    end
+    
     # Finds the record with the given ID, or the first that matches the given conditions
     def self.find(options = {})
       if options.class == String then
         if Ampere.connection.exists(options) then
-          new(Ampere.connection.hgetall(options))
+          new(Ampere.connection.hgetall(options), true)
         else
           nil
         end
@@ -239,6 +263,7 @@ module Ampere
       @fields         ||= []
       @field_defaults ||= {}
       @indices        ||= []
+      @field_types    ||= {}
       if field_name.class == String or field_name.class == Symbol then
         raise "Can't index a nonexistent field!" unless @fields.include?(field_name)
       elsif field_name.class == Array then
@@ -290,9 +315,11 @@ module Ampere
           
         unless nonindexed_fields.empty?
           results = all if results.nil?
-          results.map!{|r| r.class == String ? find(r) : r}
+          results = results.to_a.map{|r| r.class == String ? find(r) : r}
           nonindexed_fields.each do |key|
-            results.select!{|r| r.send(key) == options[key]}
+            results.select!{|r| 
+              r.send(key) == options[key]
+            }
           end
         end
         
