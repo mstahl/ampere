@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "ampere"
-  s.version = "0.1.0"
+  s.version = "0.1.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Max Thom Stahl"]
-  s.date = "2012-01-06"
+  s.date = "2012-01-18"
   s.description = "An ActiveRecord/Mongoid-esque object model for the Redis key/value data store."
   s.email = "max@villainousindustri.es"
   s.extra_rdoc_files = [
@@ -26,6 +26,7 @@ Gem::Specification.new do |s|
     "README.md",
     "Rakefile",
     "VERSION",
+    "ampere.gemspec",
     "features/ampere.feature",
     "features/step_definitions/ampere_steps.rb",
     "features/support/env.rb",
