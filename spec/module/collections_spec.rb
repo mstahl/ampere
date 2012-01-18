@@ -27,6 +27,7 @@ describe 'Collections', :collections => true do
     democrats.class.should == Ampere::Collection
     democrats.model.should == President
     democrats.raw_array.length.should == 3
+    democrats.length.should == 3
   end
   
   it 'should be accessible via [] like an Array' do

@@ -59,11 +59,16 @@ describe "Base models", :model => true do
           end
         end
         
+        it "should set field types for fields that have a type" do
+          Post.field_types.should_not be_nil
+          Post.field_types[:pageviews].should_not be_nil
+          Post.field_types[:pageviews].should == 'Integer'
+        end
+        
         it "shouldn't care what the value types are assigned to a field with no type defined" do
-          pending "Types not implemented yet."
-          # Assign a string to the :make of a motorcycle.
+          # Assign an int to the :title of a Post.
           (->{
-            Post.create :title     => "",
+            Post.create :title     => 1234,
                         :byline    => "",
                         :content   => "",
                         :pageviews => 1234
@@ -71,25 +76,24 @@ describe "Base models", :model => true do
             
           }).should_not raise_error
           
-          # Assign an integer to the :make of a motorcycle, for some reason.
+          # Assign a string to the :title of a Post.
           (->{
-            Motorcycle.create :make         => 1234,
-                              :model        => 'CB450SC',
-                              :year         => 1986,
-                              :displacement => 450.0
+            Post.create :title     => "1234",
+                        :byline    => "",
+                        :content   => "",
+                        :pageviews => 1234
           }).should_not raise_error
         end
         
-        it "should, given a field's type, only accept values for that field of that type", :wip => true do
-          pending "Types not implemented yet."
-          cycle = Motorcycle.create :make         => 'Honda',
-                                    :model        => 'CB450SC',
-                                    :year         => 1986,
-                                    :displacement => 450.0
+        it "should, given a field's type, only accept values for that field of that type" do
+          post = Post.create :title     => "",
+                             :byline    => "",
+                             :content   => "",
+                             :pageviews => 1234
           
           # Try to assign a string to :year, raising an error.
-          (->{cycle.year = "this is not a year"}).should raise_error
-          (->{cycle.year = 1996}).should_not raise_error
+          (->{post.pageviews = "this is not an integer"}).should raise_error
+          (->{post.pageviews = 4321}).should_not raise_error
         end
       end
     end
@@ -141,9 +145,15 @@ describe "Base models", :model => true do
       foo = Post.create :title => "Kitties!", :byline => "Max", :content => "Kitties are awesome."
       bar = Post.create :title => "Doggies!", :byline => "Max", :content => "Doggies are cool."
       
-      foo.should == foo # Post.new(:title => "Kitties!", :byline => "Max", :content => "Kitties are awesome.")
+      foo.should == foo
       foo.should_not == bar
       
+      foo.should eql(foo)
+      foo.should_not eql(bar)
+    end
+    
+    it "should also be able to determine the hash of a record, for equivalence testing" do
+      Post.new(title: "Guinea Pigs", byline: "Max", content: "Guinea pigs are super cute.").hash.is_a?(Fixnum).should be_true
     end
 
     it "should be able to tell when it's new" do
@@ -167,7 +177,7 @@ describe "Base models", :model => true do
     
     it "should be destroyable by itself" do
       another_post = Post.create :title   => "This one too, probably.",
-                                 :byline  => "Just seems like one bit",
+                                 :byline  => "Just seems like one big",
                                  :content => "non sequitor."
       id = another_post.id
       another_post.destroy.should == 1
@@ -175,10 +185,9 @@ describe "Base models", :model => true do
     end
     
     it "should be findable by ID" do
-      post = Post.new :title   => "foo",
-                      :byline  => "bar",
-                      :content => "baz"
-      post.save
+      post = Post.create :title   => "foo",
+                         :byline  => "bar",
+                         :content => "baz"
       Post.find(post.id).should == post
       # Since we're using GUIDs, this should also be true:
       post2 = Post.find(post.id)

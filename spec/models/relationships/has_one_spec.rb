@@ -1,6 +1,6 @@
 require File.join(File.dirname(__FILE__), "..", "..", "spec_helper.rb")
 
-describe 'has_one relationships' do
+describe 'has_one relationships', has_one:true do
   before :all do
     Redis.new.flushall
     Ampere.connect
