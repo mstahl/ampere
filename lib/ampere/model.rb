@@ -244,30 +244,9 @@ module Ampere
       my_klass_name = to_s.downcase
       
       define_method(:"#{field_name}") do
-        results = (Ampere.connection.smembers("#{to_s.downcase}.#{self.id}.has_many.#{field_name}")).map do |id|
+        (Ampere.connection.smembers("#{to_s.downcase}.#{self.id}.has_many.#{field_name}")).map do |id|
           eval(klass_name.to_s.capitalize).find(id)
         end
-        
-        @model = self
-        @field_name = field_name
-        
-        class << results
-          # Methods that can change this collection go here.
-          def <<(other)
-            if other.is_a?(Ampere::Model) then
-              other.save if other.new?
-              
-              Ampere.connection.sadd("#{to_s.downcase}.#{@model.id}.has_many.#{@field_name}", other.id)
-              Ampere.connection.hset(other.id, "#{my_klass_name}_id", self.send("id"))
-            else
-              raise "Can't add instance of #{other.class} to :#{field_name}"
-            end
-            self
-          end
-          
-          # TODO Figure out a way to make += work, as well as <<.
-        end
-        results
       end
       
       define_method(:"#{field_name}=") do |val|
