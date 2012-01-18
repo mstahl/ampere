@@ -32,7 +32,7 @@ describe 'has_one relationships', has_one:true do
   
   ###
   
-  it 'can store a relationship to one model instance from another using an attr_accessor', wip:true do
+  it 'can store a relationship to one model instance from another using an attr_accessor' do
     @car.engine_id = @engine.id
     @car.save
     @car.reload

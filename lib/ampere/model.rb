@@ -315,9 +315,11 @@ module Ampere
           
         unless nonindexed_fields.empty?
           results = all if results.nil?
-          results.map!{|r| r.class == String ? find(r) : r}
+          results = results.to_a.map{|r| r.class == String ? find(r) : r}
           nonindexed_fields.each do |key|
-            results.select!{|r| r.send(key) == options[key]}
+            results.select!{|r| 
+              r.send(key) == options[key]
+            }
           end
         end
         
