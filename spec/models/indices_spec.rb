@@ -68,8 +68,7 @@ describe "Model indices", :indices => true do
     }).should raise_error
   end
   
-  it 'should enforce the uniqueness of unique single-field indices' do
-    pending
+  it 'should enforce the uniqueness of unique single-field indices', wip:true do
     # The student_id_num field of Student is unique. If two Students
     # with the same student_id_num are stored, the second should not 
     # save successfully, throwing an exception instead.
