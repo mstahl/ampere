@@ -80,6 +80,15 @@ module Ampere
     
     # Saves this record to the database.
     def save
+      self.class.unique_indices.each do |idx|
+        # For each uniquely-indexed field, look up the index for that field,
+        # and throw an exception if this record's value for that field is in
+        # the index already.
+        if Ampere.connection.hexists("ampere.index.#{self.class.to_s.downcase}.#{idx}", instance_variable_get("@#{idx}")) then
+          raise "Cannot save non-unique value for #{idx}"
+        end
+      end
+      
       # Grab a fresh GUID from Redis by incrementing the "__guid" key
       if @id.nil? then
         @id = "#{self.class.to_s.downcase}.#{Ampere.connection.incr('__guid')}"
@@ -164,6 +173,7 @@ module Ampere
       @fields         ||= []
       @field_defaults ||= {}
       @indices        ||= []
+      @unique_indices ||= []
       @field_types    ||= {}
       
       @fields << name
@@ -260,13 +270,18 @@ module Ampere
     
     # Defines an index. See the README for more details.
     def self.index(field_name, options = {})
+      # TODO There has just got to be a better way to handle this.
       @fields         ||= []
       @field_defaults ||= {}
       @indices        ||= []
+      @unique_indices ||= []
       @field_types    ||= {}
+      
       if field_name.class == String or field_name.class == Symbol then
+        # Singular index
         raise "Can't index a nonexistent field!" unless @fields.include?(field_name)
       elsif field_name.class == Array then
+        # Compound index
         field_name.each{|f| raise "Can't index a nonexistent field!" unless @fields.include?(f)}
         field_name.sort!
       else
@@ -274,10 +289,15 @@ module Ampere
       end
       
       @indices << field_name
+      @unique_indices << field_name if options[:unique]
     end
     
     def self.indices
       @indices
+    end
+    
+    def self.unique_indices
+      @unique_indices
     end
     
     # Finds an array of records which match the given conditions. This method is
