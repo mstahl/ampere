@@ -5,7 +5,9 @@ describe "Model indices", :indices => true do
     Redis.new.flushall
     Ampere.connect
 
-    class Student < Ampere::Model
+    class Student
+      include Ampere::Model
+      
       field :first_name
       field :last_name
       field :student_id_num
@@ -48,19 +50,25 @@ describe "Model indices", :indices => true do
   
   it 'should refuse to create an index on a field that does not exist' do
     (->{
-      class Student < Ampere::Model
+      class Student
+        include Ampere::Model
+        
         field :this_field_exists
 
         index :this_field_exists
       end
     }).should_not raise_error
     (->{
-      class Student < Ampere::Model
+      class Student
+        include Ampere::Model
+        
         index :this_field_does_not_exist
       end
     }).should raise_error
     (->{
-      class Student < Ampere::Model
+      class Student
+        include Ampere::Model
+        
         field :this_field_exists
         
         index [:this_field_exists, :but_this_one_does_not]
@@ -87,7 +95,9 @@ describe "Model indices", :indices => true do
   
   context 'compound indices' do
     before :all do
-      class Professor < Ampere::Model
+      class Professor
+        include Ampere::Model
+        
         field :first_name
         field :last_name
         field :employee_id_number

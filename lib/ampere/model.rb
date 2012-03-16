@@ -1,5 +1,5 @@
 module Ampere
-  class Model
+  module Model
     attr_reader :id
     
     @fields         = []
