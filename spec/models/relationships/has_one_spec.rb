@@ -6,7 +6,9 @@ describe 'has_one relationships', has_one:true do
     Ampere.connect
     
     # These are used by the has_one/belongs_to example below
-    class Car < Ampere::Model
+    class Car
+      include Ampere::Model
+      
       field :make
       field :model
       field :year
@@ -14,7 +16,9 @@ describe 'has_one relationships', has_one:true do
       has_one :engine
     end
 
-    class Engine < Ampere::Model
+    class Engine
+      include Ampere::Model
+      
       field :displacement
       field :cylinders
       field :configuration

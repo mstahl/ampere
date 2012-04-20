@@ -5,7 +5,9 @@ describe 'queries', :queries => true do
     Redis.new.flushall
     Ampere.connect
     
-    class Motorcycle < Ampere::Model
+    class Motorcycle
+      include Ampere::Model
+      
       field :make
       field :model
       field :year
