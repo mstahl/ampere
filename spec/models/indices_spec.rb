@@ -1,7 +1,7 @@
 require File.join(File.dirname(__FILE__), "..", "spec_helper.rb")
 
 describe "Model indices", :indices => true do
-  before :all do
+  before :each do
     Redis.new.flushall
     Ampere.connect
 

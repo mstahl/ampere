@@ -39,7 +39,9 @@ describe "Base models", :model => true do
       end
     
       it "should have default values definable" do
-        class Comment < Ampere::Model
+        class Comment
+          include Ampere::Model
+          
           field :subject, :default => "No subject"
           field :content
         end
@@ -57,6 +59,8 @@ describe "Base models", :model => true do
         before :all do
           # Just adding a field with a type to Post
           class Post
+            include Ampere::Model
+            
             field :pageviews, :type => Integer, :default => 0
           end
         end
