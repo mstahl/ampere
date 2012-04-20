@@ -5,12 +5,24 @@ Ampere is an ActiveRecord-style ORM for the Redis key/value data store.
 This is under active development right now and not very far along. Stay
 tuned for further developments.
 
+## A note about version 1.0 (IMPORTANT!!!)
+
+For the 1.0 release I changed Ampere's API so that instead of subclassing
+`Ampere::Model` to use Ampere's methods, you include it as a mixin. This
+change has been reflected in the examples below.
+
+This change was to unify the usage of Ampere a little more with usage of
+Mongoid, and also so that users of Ampere can use their own class hierarchies,
+which at some later date might have significance with how Ampere works.
+
 ## Usage
 
 Write a model class and make it inherit from the `Ampere::Model` class.
 These work pretty similarly to how they do in ActiveRecord or Mongoid.
 
-    class Car < Ampere::Model
+    class Car
+      include Ampere::Model
+      
       field :make
       field :model
       field :year
@@ -19,7 +31,9 @@ These work pretty similarly to how they do in ActiveRecord or Mongoid.
       has_many :passengers
     end
 
-    class Engine < Ampere::Model
+    class Engine
+      include Ampere::Model
+      
       field :displacement
       field :cylinders
       field :configuration
@@ -27,7 +41,9 @@ These work pretty similarly to how they do in ActiveRecord or Mongoid.
       belongs_to :car
     end
     
-    class Passenger < Ampere::Model
+    class Passenger
+      include Ampere::Model
+      
       field :name
       field :seat
       
@@ -46,9 +62,11 @@ be slower if one of the keys you are searching by isn't indexed).
 
 ### Indexes
 
-Indexes work similar to Mongoid. They are non-unique.
+Indexes work similar to Mongoid. They are non-unique by default.
 
-    class Student < Ampere::Model
+    class Student
+      include Ampere::Model
+      
       field :last_name
       field :first_name
       
@@ -60,7 +78,9 @@ last_name will happen faster.
 
 You can also define indices on multiple fields.
     
-    class Student < Ampere::Model
+    class Student
+      include Ampere::Model
+      
       field :last_name
       field :first_name
       
