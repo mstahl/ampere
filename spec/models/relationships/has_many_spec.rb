@@ -6,7 +6,9 @@ describe 'has_many relationships', :has_many => true do
     Ampere.connect
     
     # These are used by the has_one/belongs_to example below
-    class Car < Ampere::Model
+    class Car
+      include Ampere::Model
+      
       field :make
       field :model
       field :year
@@ -14,7 +16,9 @@ describe 'has_many relationships', :has_many => true do
       has_many :passengers
     end
     
-    class Passenger < Ampere::Model
+    class Passenger
+      include Ampere::Model
+      
       field :name
       field :seat
       

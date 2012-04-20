@@ -5,7 +5,9 @@ describe 'queries', :queries => true do
     Redis.new.flushall
     Ampere.connect
     
-    class Kitty < Ampere::Model
+    class Kitty
+      include Ampere::Model
+      
       field :name
       field :breed
       field :age

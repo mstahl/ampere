@@ -9,7 +9,9 @@ describe "Base models", :model => true do
       Redis.new.flushall
       
       # Define a model class here.
-      class Post < Ampere::Model
+      class Post
+        include Ampere::Model
+        
         field :title
         field :byline
         field :content
@@ -37,7 +39,9 @@ describe "Base models", :model => true do
       end
     
       it "should have default values definable" do
-        class Comment < Ampere::Model
+        class Comment
+          include Ampere::Model
+          
           field :subject, :default => "No subject"
           field :content
         end
@@ -54,7 +58,9 @@ describe "Base models", :model => true do
       context 'types', :types => true do
         before :all do
           # Just adding a field with a type to Post
-          class Post < Ampere::Model
+          class Post
+            include Ampere::Model
+            
             field :pageviews, :type => Integer, :default => 0
           end
         end
