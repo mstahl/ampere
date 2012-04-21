@@ -1,6 +1,8 @@
 module Ampere
+  # Including the `Ampere::Model` module into one of your classes mixes in all 
+  # the class and instance methods of an Ampere model. See individual methods
+  # for more information.
   module Model
-    
     def self.included(base)
       base.extend(ClassMethods)
       
