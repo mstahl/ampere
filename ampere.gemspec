@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "ampere"
-  s.version = "1.0.0"
+  s.version = "1.1.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Max Thom Stahl"]
-  s.date = "2012-04-20"
+  s.date = "2012-05-03"
   s.description = "An ActiveRecord/Mongoid-esque object model for the Redis key/value data store."
   s.email = "max@villainousindustri.es"
   s.extra_rdoc_files = [
@@ -41,6 +41,7 @@ Gem::Specification.new do |s|
     "spec/models/relationships/has_one_spec.rb",
     "spec/models/updates_spec.rb",
     "spec/module/ampere_spec.rb",
+    "spec/module/collections_ennumerable_spec.rb",
     "spec/module/collections_spec.rb",
     "spec/spec_helper.rb",
     "test/helper.rb",
@@ -49,7 +50,7 @@ Gem::Specification.new do |s|
   s.homepage = "http://github.com/mstahl/ampere"
   s.licenses = ["EPL"]
   s.require_paths = ["lib"]
-  s.rubygems_version = "1.8.17"
+  s.rubygems_version = "1.8.15"
   s.summary = "A pure Ruby ORM for Redis."
 
   if s.respond_to? :specification_version then
