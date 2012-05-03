@@ -5,7 +5,9 @@ describe 'Collections are Ennumerable', :collections => true, :ennumerable => tr
     Redis.new.flushall
     Ampere.connect
     
-    class President < Ampere::Model
+    class President
+      include Ampere::Model
+      
       field :name
       field :party
       

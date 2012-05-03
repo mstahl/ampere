@@ -151,7 +151,7 @@ module Ampere
     ### Class methods
     module ClassMethods
       # Returns an array of all the records that have been stored.
-      def self.all
+      def all
         Ampere::Collection.new(self, Ampere.connection.keys("#{to_s.downcase}.*"))
       end
     
