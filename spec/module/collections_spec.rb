@@ -23,13 +23,21 @@ describe 'Collections', :collections => true do
   end
   
   ###
+
+  it 'should be returned by President.all' do
+    democrats = President.all
+    democrats.class.should == Ampere::Collection
+    democrats.model.should == President
+    democrats.raw_array.length.should == 6
+    democrats.count.should == 6
+  end
   
   it 'should be returned by where() queries' do
     democrats = President.where(:party => "Democratic")
     democrats.class.should == Ampere::Collection
     democrats.model.should == President
     democrats.raw_array.length.should == 3
-    democrats.length.should == 3
+    democrats.count.should == 3
   end
   
   it 'should be accessible via [] like an Array' do
