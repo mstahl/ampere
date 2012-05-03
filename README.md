@@ -2,10 +2,7 @@
 
 Ampere is an ActiveRecord-style ORM for the Redis key/value data store. 
 
-This is under active development right now and not very far along. Stay
-tuned for further developments.
-
-## A note about version 1.0 (IMPORTANT!!!)
+## A note about Ampere version >1.0 (IMPORTANT!!!)
 
 For the 1.0 release I changed Ampere's API so that instead of subclassing
 `Ampere::Model` to use Ampere's methods, you include it as a mixin. This
@@ -59,6 +56,9 @@ Later, when you want to retrieve it, you can use the where() method (although th
 be slower if one of the keys you are searching by isn't indexed).
 
     post = Post.where(:title => "BREAKING: Kitties Are Awesome").first
+
+Ampere query results implement the `Enumerable` module, so all the Enumerable methods 
+you know and love are there. 
 
 ### Indexes
 
