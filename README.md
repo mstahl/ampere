@@ -93,6 +93,25 @@ individual indices, which will always run faster than queries on unindexed field
 _**Warning:**_ If you query on an un-indexed field, the returned result set will not be
 evaluated lazily!
 
+### Validations
+
+You can now add validations to your Ampere models thanks to the magic of ActiveModel!
+
+    class Student
+      include Ampere::Model
+      
+      field :last_name
+      field :first_name
+      field :student_id_number
+      
+      index [:last_name, :first_name]
+      
+      validates_presence_of :last_name
+      validates_format_of :student_id_number, :with => /\A[0-9]{10}\Z/
+    end
+
+It's that easy!
+
 ## Contributing to ampere
  
   * Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet
