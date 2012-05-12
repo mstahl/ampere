@@ -3,6 +3,8 @@ source "http://rubygems.org"
 # Example:
 #   gem "activesupport", ">= 2.3.5"
 
+gem 'activesupport'
+gem 'activemodel'
 gem 'redis'
 
 # Add dependencies to develop your gem here.
@@ -10,7 +12,7 @@ gem 'redis'
 group :development do
   gem "shoulda", ">= 0"
   gem "cucumber", ">= 0"
-  gem "bundler", "~> 1.0.0"
+  gem "bundler", ">= 1.0.0"
   gem "jeweler", "~> 1.6.4"
   gem 'simplecov', :require => false, :group => :test
   gem "rspec"

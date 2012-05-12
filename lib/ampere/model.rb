@@ -5,6 +5,8 @@ module Ampere
       base.extend(ClassMethods)
       
       base.class_eval do
+        include(::ActiveModel::Validations)
+        
         attr_reader :id
       
         attr_accessor :fields
