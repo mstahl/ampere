@@ -2,10 +2,7 @@
 
 Ampere is an ActiveRecord-style ORM for the Redis key/value data store. 
 
-This is under active development right now and not very far along. Stay
-tuned for further developments.
-
-## A note about version 1.0 (IMPORTANT!!!)
+## A note about Ampere version >1.0 (IMPORTANT!!!)
 
 For the 1.0 release I changed Ampere's API so that instead of subclassing
 `Ampere::Model` to use Ampere's methods, you include it as a mixin. This
@@ -60,6 +57,9 @@ be slower if one of the keys you are searching by isn't indexed).
 
     post = Post.where(:title => "BREAKING: Kitties Are Awesome").first
 
+Ampere query results implement the `Enumerable` module, so all the Enumerable methods 
+you know and love are there. 
+
 ### Indexes
 
 Indexes work similar to Mongoid. They are non-unique by default.
@@ -92,6 +92,25 @@ individual indices, which will always run faster than queries on unindexed field
 
 _**Warning:**_ If you query on an un-indexed field, the returned result set will not be
 evaluated lazily!
+
+### Validations
+
+You can now add validations to your Ampere models thanks to the magic of ActiveModel!
+
+    class Student
+      include Ampere::Model
+      
+      field :last_name
+      field :first_name
+      field :student_id_number
+      
+      index [:last_name, :first_name]
+      
+      validates_presence_of :last_name
+      validates_format_of :student_id_number, :with => /\A[0-9]{10}\Z/
+    end
+
+It's that easy!
 
 ## Contributing to ampere
  

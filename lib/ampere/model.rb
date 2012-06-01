@@ -7,6 +7,8 @@ module Ampere
       base.extend(ClassMethods)
       
       base.class_eval do
+        include(::ActiveModel::Validations)
+        
         attr_reader :id
       
         attr_accessor :fields
@@ -151,11 +153,10 @@ module Ampere
     end
     
     ### Class methods
-    
     module ClassMethods
       # Returns an array of all the records that have been stored.
       def all
-        Ampere.connection.keys("#{to_s.downcase}.*").map{|m| find m}
+        Ampere::Collection.new(self, Ampere.connection.keys("#{to_s.downcase}.*"))
       end
     
       # Declares a belongs_to relationship to another model.
