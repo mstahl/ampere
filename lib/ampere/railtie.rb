@@ -39,7 +39,7 @@ module Ampere
     end
     
     rake_tasks do
-      load File.join(__FILE__, '..', 'rails', 'tasks', 'ampere.rake')
+      load File.join(File.dirname(__FILE__), '..', 'rails', 'tasks', 'ampere.rake')
     end
     
   end
