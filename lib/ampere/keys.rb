@@ -1,0 +1,25 @@
+# These are just utlity functions used by Ampere internally to generate Redis
+# keys for various Ampere functions, for DRY excellence. 
+module Ampere #:nodoc:
+  module Keys #:nodoc:
+    def self.included(base)
+      # base.extend(ClassMethods)
+      base.extend(self)
+    end
+  
+    def key_for_index(field)
+      ['ampere', 'index', model_name.downcase, field].flatten.join('.')
+    end
+  
+    private
+  
+    def model_name
+      if self.class == Class
+        to_s
+      else
+        self.class.to_s
+      end
+    end
+  
+  end
+end
