@@ -2,6 +2,7 @@
 # keys for various Ampere functions, for DRY excellence. 
 module Ampere #:nodoc:
   module Keys #:nodoc:
+    # These methods get mixed in to class and instance
     def self.included(base)
       # base.extend(ClassMethods)
       base.extend(self)
