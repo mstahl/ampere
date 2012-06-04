@@ -273,14 +273,14 @@ module Ampere
         my_klass_name = to_s.downcase
       
         define_method(:"#{field_name}") do
-          (Ampere.connection.smembers("#{to_s.downcase}.#{self.id}.has_many.#{field_name}")).map do |id|
+          (Ampere.connection.smembers(key_for_has_many(to_s.downcase, self.id, field_name))).map do |id|
             eval(klass_name.to_s.capitalize).find(id)
           end
         end
       
         define_method(:"#{field_name}=") do |val|
           val.each do |v|
-            Ampere.connection.sadd("#{to_s.downcase}.#{self.id}.has_many.#{field_name}", v.id)
+            Ampere.connection.sadd(key_for_has_many(to_s.downcase, self.id, field_name), v.id)
             # Set pointer for belongs_to
             Ampere.connection.hset(v.id, "#{my_klass_name}_id", self.send("id"))
           end

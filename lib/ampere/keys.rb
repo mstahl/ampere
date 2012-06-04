@@ -7,13 +7,17 @@ module Ampere #:nodoc:
       # base.extend(ClassMethods)
       base.extend(self)
     end
-  
+    
+    def key_for_has_many(parent_model, id, field)
+      [parent_model, id, 'has_many', field].flatten.join('.')
+    end
+    
     def key_for_index(field)
       ['ampere', 'index', model_name.downcase, field].flatten.join('.')
     end
-  
+    
     private
-  
+    
     def model_name
       if self.class == Class
         to_s
