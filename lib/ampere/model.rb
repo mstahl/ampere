@@ -6,8 +6,11 @@ module Ampere
     def self.included(base)
       base.extend(ClassMethods)
       
+      base.extend(Keys)
+      
       base.class_eval do
         include(::ActiveModel::Validations)
+        include(Ampere::Keys)
         
         attr_reader :id
       
@@ -100,7 +103,7 @@ module Ampere
         # For each uniquely-indexed field, look up the index for that field,
         # and throw an exception if this record's value for that field is in
         # the index already.
-        if Ampere.connection.hexists("ampere.index.#{self.class.to_s.downcase}.#{idx}", instance_variable_get("@#{idx}")) then
+        if Ampere.connection.hexists(key_for_index(idx), instance_variable_get("@#{idx}")) then
           raise "Cannot save non-unique value for #{idx}"
         end
       end
@@ -117,17 +120,17 @@ module Ampere
       self.class.indices.each do |index|
         if index.class == String or index.class == Symbol then
           Ampere.connection.hset(
-            "ampere.index.#{self.class.to_s.downcase}.#{index}", 
+            key_for_index(index), 
             instance_variable_get("@#{index}"), 
-            ([@id] | (Ampere.connection.hget("ampere.index.#{self.class.to_s.downcase}.#{index}", instance_variable_get("@#{index}")) or "")
+            ([@id] | (Ampere.connection.hget(key_for_index(index), instance_variable_get("@#{index}")) or "")
             .split(/:/)).join(":")
           )
         elsif index.class == Array then
           key = index.map{|i| instance_variable_get("@#{i}")}.join(':')
-          val = ([@id] | (Ampere.connection.hget("ampere.index.#{self.class.to_s.downcase}.#{index}", key) or "")
+          val = ([@id] | (Ampere.connection.hget(key_for_index(index), key) or "")
                 .split(/:/)).join(":")
           Ampere.connection.hset(
-            "ampere.index.#{self.class.to_s.downcase}.#{index.join(':')}",
+            key_for_index(index.join(':')),
             key,
             val
           )
@@ -270,14 +273,14 @@ module Ampere
         my_klass_name = to_s.downcase
       
         define_method(:"#{field_name}") do
-          (Ampere.connection.smembers("#{to_s.downcase}.#{self.id}.has_many.#{field_name}")).map do |id|
+          (Ampere.connection.smembers(key_for_has_many(to_s.downcase, self.id, field_name))).map do |id|
             eval(klass_name.to_s.capitalize).find(id)
           end
         end
       
         define_method(:"#{field_name}=") do |val|
           val.each do |v|
-            Ampere.connection.sadd("#{to_s.downcase}.#{self.id}.has_many.#{field_name}", v.id)
+            Ampere.connection.sadd(key_for_has_many(to_s.downcase, self.id, field_name), v.id)
             # Set pointer for belongs_to
             Ampere.connection.hset(v.id, "#{my_klass_name}_id", self.send("id"))
           end
@@ -311,7 +314,7 @@ module Ampere
       def indices
         @indices
       end
-    
+      
       def unique_indices
         @unique_indices
       end
@@ -330,11 +333,11 @@ module Ampere
           unless indexed_fields.empty?
             indexed_fields.map {|key|
               if key.class == String or key.class == Symbol then
-                Ampere.connection.hget("ampere.index.#{to_s.downcase}.#{key}", options[key]).split(/:/) #.map {|id| find(id)}
+                Ampere.connection.hget(key_for_index(key), options[key]).split(/:/) #.map {|id| find(id)}
               else
                 # Compound index
                 Ampere.connection.hget(
-                  "ampere.index.#{to_s.downcase}.#{key.join(':')}", 
+                  key_for_index(key.join(':')),
                   key.map{|k| options[k]}.join(':')
                 ).split(/:/) #.map {|id| find(id)}
               end
@@ -371,6 +374,7 @@ module Ampere
           (query.keys - ci).empty?
         }
       end
+      
     end
     
   end
