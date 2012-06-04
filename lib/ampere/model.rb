@@ -10,6 +10,9 @@ module Ampere
       
       base.class_eval do
         include(::ActiveModel::Validations)
+        include(Rails.application.routes.url_helpers) if defined?(Rails)
+        include(ActionController::UrlFor) if defined?(Rails)
+
         include(Ampere::Keys)
         
         attr_reader :id
@@ -79,6 +82,11 @@ module Ampere
     def new?
       @id.nil? or not Ampere.connection.exists(@id)
     end
+    alias :new_record? :new?
+    
+    def persisted?
+      not @id.nil?
+    end
     
     # Reloads this record from the database.
     def reload
@@ -95,6 +103,11 @@ module Ampere
         end
       end
       self
+    end
+    
+    def route_key #:nodoc:
+      raise "route_key was called"
+      @id
     end
     
     # Saves this record to the database.
@@ -139,6 +152,14 @@ module Ampere
       self
     end
     
+    def to_key #:nodoc:
+      @id.nil? ? nil : @id
+    end
+    
+    def to_param
+      to_key
+    end
+    
     def update_attribute(key, value)
       raise "Cannot update a nonexistent field!" unless self.class.fields.include?(key)
       self.send("#{key}=", value)
@@ -156,8 +177,8 @@ module Ampere
     end
     
     ### Class methods
-    module ClassMethods
-      # Returns an array of all the records that have been stored.
+    module ClassMethods #:nodoc:
+      # Returns a lazy collection of all the records that have been stored.
       def all
         Ampere::Collection.new(self, Ampere.connection.keys("#{to_s.downcase}.*"))
       end
@@ -181,6 +202,7 @@ module Ampere
       def create(hash = {})
         new(hash).save
       end
+      alias :create! :create
     
       # Deletes the record with the given ID.
       def delete(id)
@@ -369,7 +391,7 @@ module Ampere
     
       private
     
-      def compound_indices_for(query)
+      def compound_indices_for(query) #:nodoc:
         compound_indices.select{|ci|
           (query.keys - ci).empty?
         }

@@ -31,8 +31,13 @@ module Ampere
     @@connection
   end
 
+  # Alias for Ampere.redis.flushall
+  def self.flush
+    @@connection.flushall if connected?
+  end
+  
 end
 
 Dir[File.join(File.dirname(__FILE__), 'ampere', '**', '*.rb')].each {|f| require f}
 
-require File.join(File.dirname(__FILE__), "ampere", "railtie.rb") if defined?(Rails)
+require File.join(File.dirname(__FILE__), "rails", "railtie.rb") if defined?(Rails)

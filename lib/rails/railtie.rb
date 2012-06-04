@@ -35,7 +35,11 @@ module Ampere
         options = YAML.load_file(config_file)
       end
       
+      puts "O HAI!"
+      
       Rails.logger.info "[ampere] Initializing redis connection redis://#{options[Rails.env]['host']}:#{options[Rails.env]['port']}"
+      
+      Ampere.connect options[Rails.env]
     end
     
     rake_tasks do
