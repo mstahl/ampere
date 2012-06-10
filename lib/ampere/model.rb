@@ -16,7 +16,8 @@ module Ampere
         include(Ampere::Keys)
         
         attr_reader :id
-      
+        attr_reader :destroyed
+        
         attr_accessor :fields
         attr_accessor :field_defaults
         attr_accessor :indices
@@ -51,7 +52,13 @@ module Ampere
     
     # Deletes this instance out of the database.
     def destroy
+      @destroyed = true
       self.class.delete(@id)
+    end
+    
+    # Returns true if this record has been deleted
+    def destroyed?
+      @destroyed
     end
     
     # Delegates to ==().
@@ -69,6 +76,8 @@ module Ampere
     # 
     #     Post.new :title => "Kitties: Are They Awesome?"
     def initialize(hash = {}, unmarshal = false)
+      @destroyed = false
+      
       hash.each do |k, v|
         if k == 'id' then
           @id = unmarshal ? Marshal.load(v) : v
@@ -150,15 +159,20 @@ module Ampere
     end
     
     def to_key #:nodoc:
-      @id.nil? ? nil : @id.gsub(/.*\./, '')
+      # @id.nil? ? [] : [@id.to_i]
+      if destroyed?
+        [ @id.to_i ]
+      else
+        persisted? ? [ @id.to_i ] : nil
+      end
     end
     
-    def to_param
-      to_key
+    def to_param #:nodoc:
+      @id.to_s
     end
     
     def update_attribute(key, value)
-      raise "Cannot update a nonexistent field!" unless self.class.fields.include?(key)
+      raise "Cannot update nonexistent field '#{key}'!" unless self.class.fields.include?(key.to_sym)
       self.send("#{key}=", value)
       Ampere.connection.hset(key_for_find(self.class, @id), key, Marshal.dump(value))
     end
