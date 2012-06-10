@@ -42,7 +42,7 @@ describe PostsController do
     end
   end
 
-  describe "GET show", wip:true do
+  describe "GET show" do
     it "assigns the requested post as @post" do
       post = Post.create! valid_attributes
       get :show, {:id => post.to_param}, valid_session
@@ -67,7 +67,7 @@ describe PostsController do
 
   describe "POST create" do
     describe "with valid params" do
-      it "creates a new Post", wip:true do
+      it "creates a new Post" do
         expect {
           post :create, {:post => valid_attributes}, valid_session
         }.to change(Post, :count).by(1)

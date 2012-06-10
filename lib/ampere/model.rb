@@ -183,8 +183,9 @@ module Ampere
       
       # The inefficient way I know how to do right now:
       hash.each do |k, v|
-        update_attribute(k, v)
+        self.send("#{k}=", v)
       end
+      self.save
     end
     
     ### Class methods
