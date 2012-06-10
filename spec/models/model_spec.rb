@@ -209,7 +209,15 @@ describe "Base models", :model => true do
       post = Post.create :title   => "Another title",
                          :byline  => "Max",
                          :content => "Some other content"
+      post.should be_persisted
       Post.find(post.id).should == post
+    end
+    
+    it "should return an integer for its ID" do
+      post = Post.create :title   => "On Motorcycles and Robots",
+                         :byline  => "Max",
+                         :content => "Motorcycles and robots are awesome"
+      post.id.should be_a(Fixnum)
     end
     
     # # #

@@ -65,10 +65,6 @@ module Ampere
       attributes.hash
     end
     
-    def id
-      key_for_find(self.class, @id)
-    end
-    
     # Initialize an instance like this:
     # 
     #     Post.new :title => "Kitties: Are They Awesome?"
@@ -76,8 +72,10 @@ module Ampere
       hash.each do |k, v|
         if k == 'id' then
           @id = unmarshal ? Marshal.load(v) : v
+        elsif k =~ /_id$/
+          self.send("#{k}=", v.to_i)
         else
-          self.send("#{k}=", (unmarshal and not k =~ /_id$/) ? Marshal.load(v) : v)
+          self.send("#{k}=", unmarshal ? Marshal.load(v) : v)
         end
       end
     end
@@ -101,17 +99,12 @@ module Ampere
       self.class.fields.each do |k|
         v = Ampere.connection.hget(key_for_find(self.class, @id), k)
         if k =~ /_id$/ then
-          self.send("#{k}=", v)
+          self.send("#{k}=", v.to_i)
         else
           self.send("#{k}=", Marshal.load(v))
         end
       end
       self
-    end
-    
-    def route_key #:nodoc:
-      raise "route_key was called"
-      @id
     end
     
     # Saves this record to the database.
@@ -127,7 +120,7 @@ module Ampere
       
       # Grab a fresh GUID from Redis by incrementing the "__guid" key
       if @id.nil? then
-        @id = "#{Ampere.connection.incr('__guid')}"
+        @id = Ampere.connection.incr('__guid')
       end
       
       self.attributes.each do |k, v|
@@ -262,7 +255,7 @@ module Ampere
     
       # Finds the record with the given ID, or the first that matches the given conditions
       def find(options = {})
-        if options.class == String then
+        if options.class == String or options.is_a?(Fixnum) then
           options = key_for_find(self, options)
           
           if Ampere.connection.exists(options) then
@@ -275,7 +268,11 @@ module Ampere
           raise "Cannot find by #{options.class} yet"
         end
       end
-    
+
+      def first
+        all.first
+      end
+
       # Defines a has_one relationship with another model. See the README for more details.
       def has_one(field_name, options = {})
         referred_klass_name = (options[:class] or options['class'] or field_name)
@@ -343,6 +340,10 @@ module Ampere
     
       def indices
         @indices
+      end
+      
+      def last
+        all.last
       end
       
       def unique_indices
