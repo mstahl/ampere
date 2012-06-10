@@ -17,4 +17,5 @@ group :development do
   gem 'simplecov', :require => false, :group => :test
   gem "rspec"
   gem "rdoc"
+  gem "timecop"
 end

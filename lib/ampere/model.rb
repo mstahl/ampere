@@ -9,6 +9,9 @@ module Ampere
       base.extend(Keys)
       
       base.class_eval do
+        extend(::ActiveModel::Callbacks)
+        define_model_callbacks :create, :update, :save
+        
         include(::ActiveModel::Validations)
         include(Ampere::Keys)
         
