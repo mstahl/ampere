@@ -177,7 +177,9 @@ describe "Base models", :model => true do
                          :content => "and it doesn't even make sense."
       id = post.id
       post.should_not be_nil
-      Post.delete(id).should == 1
+      deleted_post = Post.delete(id)
+      deleted_post.should eq(post)
+      deleted_post.title.should eq(post.title)
       Post.find(id).should be_nil
     end
     
@@ -186,7 +188,7 @@ describe "Base models", :model => true do
                                  :byline  => "Just seems like one big",
                                  :content => "non sequitor."
       id = another_post.id
-      another_post.destroy.should == 1
+      another_post.destroy.should eq(another_post)
       Post.find(id).should be_nil
     end
     
