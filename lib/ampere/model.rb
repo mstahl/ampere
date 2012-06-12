@@ -102,44 +102,48 @@ module Ampere
     
     # Saves this record to the database.
     def save
-      self.class.unique_indices.each do |idx|
-        # For each uniquely-indexed field, look up the index for that field,
-        # and throw an exception if this record's value for that field is in
-        # the index already.
-        if Ampere.connection.hexists(key_for_index(idx), instance_variable_get("@#{idx}")) then
-          raise "Cannot save non-unique value for #{idx}"
-        end
-      end
+      run_callbacks :save do
+        run_callbacks :create do
+          self.class.unique_indices.each do |idx|
+            # For each uniquely-indexed field, look up the index for that field,
+            # and throw an exception if this record's value for that field is in
+            # the index already.
+            if Ampere.connection.hexists(key_for_index(idx), instance_variable_get("@#{idx}")) then
+              raise "Cannot save non-unique value for #{idx}"
+            end
+          end
       
-      # Grab a fresh GUID from Redis by incrementing the "__guid" key
-      if @id.nil? then
-        @id = "#{self.class.to_s.downcase}.#{Ampere.connection.incr('__guid')}"
-      end
+          # Grab a fresh GUID from Redis by incrementing the "__guid" key
+          if @id.nil? then
+            @id = "#{self.class.to_s.downcase}.#{Ampere.connection.incr('__guid')}"
+          end
       
-      self.attributes.each do |k, v|
-        Ampere.connection.hset(@id, k, k =~ /_id$/ ? v : Marshal.dump(v))
-      end
+          self.attributes.each do |k, v|
+            Ampere.connection.hset(@id, k, k =~ /_id$/ ? v : Marshal.dump(v))
+          end
       
-      self.class.indices.each do |index|
-        if index.class == String or index.class == Symbol then
-          Ampere.connection.hset(
-            key_for_index(index), 
-            instance_variable_get("@#{index}"), 
-            ([@id] | (Ampere.connection.hget(key_for_index(index), instance_variable_get("@#{index}")) or "")
-            .split(/:/)).join(":")
-          )
-        elsif index.class == Array then
-          key = index.map{|i| instance_variable_get("@#{i}")}.join(':')
-          val = ([@id] | (Ampere.connection.hget(key_for_index(index), key) or "")
+          self.class.indices.each do |index|
+            if index.class == String or index.class == Symbol then
+              Ampere.connection.hset(
+                key_for_index(index), 
+                instance_variable_get("@#{index}"), 
+                ([@id] | (Ampere.connection.hget(key_for_index(index), instance_variable_get("@#{index}")) or "")
                 .split(/:/)).join(":")
-          Ampere.connection.hset(
-            key_for_index(index.join(':')),
-            key,
-            val
-          )
+              )
+            elsif index.class == Array then
+              key = index.map{|i| instance_variable_get("@#{i}")}.join(':')
+              val = ([@id] | (Ampere.connection.hget(key_for_index(index), key) or "")
+                    .split(/:/)).join(":")
+              Ampere.connection.hset(
+                key_for_index(index.join(':')),
+                key,
+                val
+              )
+            end
+          end
+          self
         end
       end
-      self
     end
     
     def update_attribute(key, value)
@@ -184,6 +188,7 @@ module Ampere
       def create(hash = {})
         new(hash).save
       end
+      alias :create! :create
     
       # Deletes the record with the given ID.
       def delete(id)
