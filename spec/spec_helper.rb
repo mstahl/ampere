@@ -7,6 +7,7 @@ end
 require 'rspec'
 require 'rspec/autorun'
 require 'shoulda'
+require 'timecop'
 
 require 'ampere'
 
