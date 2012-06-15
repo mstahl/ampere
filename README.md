@@ -2,20 +2,23 @@
 
 Ampere is an ActiveRecord-style ORM for the Redis key/value data store. 
 
-## A note about Ampere version >1.0 (IMPORTANT!!!)
-
-For the 1.0 release I changed Ampere's API so that instead of subclassing
-`Ampere::Model` to use Ampere's methods, you include it as a mixin. This
-change has been reflected in the examples below.
-
-This change was to unify the usage of Ampere a little more with usage of
-Mongoid, and also so that users of Ampere can use their own class hierarchies,
-which at some later date might have significance with how Ampere works.
-
 ## Usage
 
-Write a model class and make it inherit from the `Ampere::Model` class.
-These work pretty similarly to how they do in ActiveRecord or Mongoid.
+Add it to your Gemfile:
+
+    gem 'ampere', '1.2.0'
+
+Generate a config file:
+
+    rails generate ampere:config
+
+Generate a model:
+
+    rails generate model post title body
+
+Ampere models include the `Ampere::Model` mixin, which gives them much
+of the same kind of functionality you're used to in ActiveRecord or
+Mongoid.
 
     class Car
       include Ampere::Model
@@ -58,7 +61,8 @@ be slower if one of the keys you are searching by isn't indexed).
     post = Post.where(:title => "BREAKING: Kitties Are Awesome").first
 
 Ampere query results implement the `Enumerable` module, so all the Enumerable methods 
-you know and love are there. 
+you know and love are there. These are lazy-evaluative, only making queries to Redis
+when an object is taken out of the collection. Treat them like Arrays, or don't.
 
 ### Indexes
 
@@ -111,6 +115,16 @@ You can now add validations to your Ampere models thanks to the magic of ActiveM
     end
 
 It's that easy!
+
+## A note about Ampere version >1.0 (IMPORTANT!!!)
+
+For the 1.0 release I changed Ampere's API so that instead of subclassing
+`Ampere::Model` to use Ampere's methods, you include it as a mixin. This
+change has been reflected in the examples above.
+
+This change was to unify the usage of Ampere a little more with usage of
+Mongoid, and also so that users of Ampere can use their own class hierarchies,
+which at some later date might have significance with how Ampere works.
 
 ## Contributing to ampere
  
