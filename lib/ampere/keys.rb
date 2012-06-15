@@ -8,6 +8,13 @@ module Ampere #:nodoc:
       base.extend(self)
     end
     
+    def key_for_find(parent_model, id)
+      unless id =~ /\./
+        id = "#{parent_model.to_s.downcase}.#{id}"
+      end
+      id
+    end
+    
     def key_for_has_many(parent_model, id, field)
       [parent_model, id, 'has_many', field].flatten.join('.')
     end
@@ -19,7 +26,7 @@ module Ampere #:nodoc:
     private
     
     def model_name
-      if self.class == Class
+      if self.class == Class then
         to_s
       else
         self.class.to_s

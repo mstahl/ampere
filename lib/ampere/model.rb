@@ -13,10 +13,14 @@ module Ampere
         define_model_callbacks :create, :update, :save
         
         include(::ActiveModel::Validations)
+        include(Rails.application.routes.url_helpers) if defined?(Rails)
+        include(ActionController::UrlFor) if defined?(Rails)
+
         include(Ampere::Keys)
         
         attr_reader :id
-      
+        attr_reader :destroyed
+        
         attr_accessor :fields
         attr_accessor :field_defaults
         attr_accessor :indices
@@ -35,9 +39,9 @@ module Ampere
     # or have been stored and have the same ID, then they are equal.
     def ==(other)
       super or
-        other.instance_of?(self.class) and
+        (other.instance_of?(self.class) and
         not id.nil? and
-        other.id == id
+        other.id == id)
     end
     
     # Returns a Hash with all the fields and their values.
@@ -51,7 +55,13 @@ module Ampere
     
     # Deletes this instance out of the database.
     def destroy
+      @destroyed = true
       self.class.delete(@id)
+    end
+    
+    # Returns true if this record has been deleted
+    def destroyed?
+      @destroyed
     end
     
     # Delegates to ==().
@@ -69,18 +79,27 @@ module Ampere
     # 
     #     Post.new :title => "Kitties: Are They Awesome?"
     def initialize(hash = {}, unmarshal = false)
+      @destroyed = false
+      
       hash.each do |k, v|
         if k == 'id' then
           @id = unmarshal ? Marshal.load(v) : v
+        elsif k =~ /_id$/
+          self.send("#{k}=", v.to_i)
         else
-          self.send("#{k}=", (unmarshal and not k =~ /_id$/) ? Marshal.load(v) : v)
+          self.send("#{k}=", unmarshal ? Marshal.load(v) : v)
         end
       end
     end
     
     # Returns true if this record has not yet been saved.
     def new?
-      @id.nil? or not Ampere.connection.exists(@id)
+      @id.nil? or not Ampere.connection.exists(key_for_find(self.class, @id))
+    end
+    alias :new_record? :new?
+    
+    def persisted?
+      not @id.nil?
     end
     
     # Reloads this record from the database.
@@ -90,9 +109,9 @@ module Ampere
       end
       
       self.class.fields.each do |k|
-        v = Ampere.connection.hget(@id, k)
+        v = Ampere.connection.hget(key_for_find(self.class, @id), k)
         if k =~ /_id$/ then
-          self.send("#{k}=", v)
+          self.send("#{k}=", v.to_i)
         else
           self.send("#{k}=", Marshal.load(v))
         end
@@ -112,16 +131,16 @@ module Ampere
               raise "Cannot save non-unique value for #{idx}"
             end
           end
-      
+          
           # Grab a fresh GUID from Redis by incrementing the "__guid" key
           if @id.nil? then
-            @id = "#{self.class.to_s.downcase}.#{Ampere.connection.incr('__guid')}"
+            @id = Ampere.connection.incr('__guid')
           end
-      
+          
           self.attributes.each do |k, v|
-            Ampere.connection.hset(@id, k, k =~ /_id$/ ? v : Marshal.dump(v))
+            Ampere.connection.hset(key_for_find(self.class, @id), k, k =~ /_id$/ ? v : Marshal.dump(v))
           end
-      
+          
           self.class.indices.each do |index|
             if index.class == String or index.class == Symbol then
               Ampere.connection.hset(
@@ -146,10 +165,23 @@ module Ampere
       end
     end
     
+    def to_key #:nodoc:
+      # @id.nil? ? [] : [@id.to_i]
+      if destroyed?
+        [ @id.to_i ]
+      else
+        persisted? ? [ @id.to_i ] : nil
+      end
+    end
+    
+    def to_param #:nodoc:
+      @id.to_s
+    end
+    
     def update_attribute(key, value)
-      raise "Cannot update a nonexistent field!" unless self.class.fields.include?(key)
+      raise "Cannot update nonexistent field '#{key}'!" unless self.class.fields.include?(key.to_sym)
       self.send("#{key}=", value)
-      Ampere.connection.hset(@id, key, Marshal.dump(value))
+      Ampere.connection.hset(key_for_find(self.class, @id), key, Marshal.dump(value))
     end
     
     def update_attributes(hash = {})
@@ -158,13 +190,14 @@ module Ampere
       
       # The inefficient way I know how to do right now:
       hash.each do |k, v|
-        update_attribute(k, v)
+        self.send("#{k}=", v)
       end
+      self.save
     end
     
     ### Class methods
-    module ClassMethods
-      # Returns an array of all the records that have been stored.
+    module ClassMethods #:nodoc:
+      # Returns a lazy collection of all the records that have been stored.
       def all
         Ampere::Collection.new(self, Ampere.connection.keys("#{to_s.downcase}.*"))
       end
@@ -192,7 +225,9 @@ module Ampere
     
       # Deletes the record with the given ID.
       def delete(id)
-        Ampere.connection.del(id)
+        record = find(id)
+        Ampere.connection.del(key_for_find(self, id))
+        record
       end
     
       # Declares a field. See the README for more details.
@@ -242,7 +277,9 @@ module Ampere
     
       # Finds the record with the given ID, or the first that matches the given conditions
       def find(options = {})
-        if options.class == String then
+        if options.class == String or options.is_a?(Fixnum) then
+          options = key_for_find(self, options)
+          
           if Ampere.connection.exists(options) then
             new(Ampere.connection.hgetall(options), true)
           else
@@ -253,7 +290,11 @@ module Ampere
           raise "Cannot find by #{options.class} yet"
         end
       end
-    
+
+      def first
+        all.first
+      end
+
       # Defines a has_one relationship with another model. See the README for more details.
       def has_one(field_name, options = {})
         referred_klass_name = (options[:class] or options['class'] or field_name)
@@ -290,7 +331,7 @@ module Ampere
           val.each do |v|
             Ampere.connection.sadd(key_for_has_many(to_s.downcase, self.id, field_name), v.id)
             # Set pointer for belongs_to
-            Ampere.connection.hset(v.id, "#{my_klass_name}_id", self.send("id"))
+            Ampere.connection.hset(key_for_find(v.class, v.id), "#{my_klass_name}_id", self.send("id"))
           end
         end
       end
@@ -321,6 +362,10 @@ module Ampere
     
       def indices
         @indices
+      end
+      
+      def last
+        all.last
       end
       
       def unique_indices
@@ -377,7 +422,7 @@ module Ampere
     
       private
     
-      def compound_indices_for(query)
+      def compound_indices_for(query) #:nodoc:
         compound_indices.select{|ci|
           (query.keys - ci).empty?
         }
