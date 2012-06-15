@@ -72,6 +72,11 @@ describe 'Collections', :collections => true do
     republicans.to_a.map(&:name).should == ["Ulysses S. Grant", "Abraham Lincoln"]
   end
   
+  it 'should give its first and last elements non-lazily' do
+    President.first.name.should eq("Millard Fillmore")
+    President.last.name.should eq("Jimmy Carter")
+  end
+  
   ###
   
   after :all do

@@ -47,3 +47,13 @@ RDoc::Task.new do |rdoc|
   rdoc.rdoc_files.include('README*')
   rdoc.rdoc_files.include('lib/**/*.rb')
 end
+
+namespace :redis do
+  desc "Flush Redis data (warning: will flush EVERYTHING, including non-Ampere stuff)"
+  task :flush do
+    require 'redis'
+    Redis.new.flushall
+    puts "Redis data FLUSHED!"
+  end
+end
+

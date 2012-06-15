@@ -47,6 +47,12 @@ module Ampere
       self[-1]
     end
     
+    def ==(other)
+      if other.is_a?(Array) then
+        to_a == other
+      end
+    end
+    
     # Class methods ###########################################################
     
     

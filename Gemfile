@@ -3,8 +3,7 @@ source "http://rubygems.org"
 # Example:
 #   gem "activesupport", ">= 2.3.5"
 
-gem 'activesupport'
-gem 'activemodel'
+gem 'activerecord'
 gem 'redis'
 
 # Add dependencies to develop your gem here.
@@ -17,4 +16,5 @@ group :development do
   gem 'simplecov', :require => false, :group => :test
   gem "rspec"
   gem "rdoc"
+  gem "timecop"
 end
