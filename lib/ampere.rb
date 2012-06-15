@@ -41,3 +41,4 @@ end
 Dir[File.join(File.dirname(__FILE__), 'ampere', '**', '*.rb')].each {|f| require f}
 
 require File.join(File.dirname(__FILE__), "rails", "railtie.rb") if defined?(Rails)
+
