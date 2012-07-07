@@ -84,7 +84,7 @@ module Ampere
       hash.each do |k, v|
         if k == 'id' then
           @id = unmarshal ? Marshal.load(v) : v
-        elsif k =~ /_id$/
+        elsif k =~ /_id$/ then
           self.send("#{k}=", v.to_i)
         else
           self.send("#{k}=", unmarshal ? Marshal.load(v) : v)
