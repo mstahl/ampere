@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "ampere"
-  s.version = "1.0.0"
+  s.version = "1.2.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Max Thom Stahl"]
-  s.date = "2012-04-20"
+  s.date = "2012-07-07"
   s.description = "An ActiveRecord/Mongoid-esque object model for the Redis key/value data store."
   s.email = "max@villainousindustri.es"
   s.extra_rdoc_files = [
@@ -20,6 +20,7 @@ Gem::Specification.new do |s|
     ".document",
     ".rspec",
     ".rvmrc",
+    "CHANGELOG.md",
     "Gemfile",
     "Gemfile.lock",
     "LICENSE.txt",
@@ -27,20 +28,96 @@ Gem::Specification.new do |s|
     "Rakefile",
     "VERSION",
     "ampere.gemspec",
+    "example/.gitignore",
+    "example/.rspec",
+    "example/Gemfile",
+    "example/Gemfile.lock",
+    "example/README",
+    "example/Rakefile",
+    "example/app/assets/images/rails.png",
+    "example/app/assets/javascripts/application.js",
+    "example/app/assets/javascripts/posts.js.coffee",
+    "example/app/assets/stylesheets/application.css",
+    "example/app/assets/stylesheets/posts.css.scss",
+    "example/app/assets/stylesheets/scaffolds.css.scss",
+    "example/app/controllers/application_controller.rb",
+    "example/app/controllers/posts_controller.rb",
+    "example/app/helpers/application_helper.rb",
+    "example/app/helpers/posts_helper.rb",
+    "example/app/mailers/.gitkeep",
+    "example/app/models/.gitkeep",
+    "example/app/models/post.rb",
+    "example/app/views/layouts/application.html.erb",
+    "example/app/views/posts/_form.html.erb",
+    "example/app/views/posts/edit.html.erb",
+    "example/app/views/posts/index.html.erb",
+    "example/app/views/posts/new.html.erb",
+    "example/app/views/posts/show.html.erb",
+    "example/config.ru",
+    "example/config/ampere.yml",
+    "example/config/application.rb",
+    "example/config/boot.rb",
+    "example/config/environment.rb",
+    "example/config/environments/development.rb",
+    "example/config/environments/production.rb",
+    "example/config/environments/test.rb",
+    "example/config/initializers/backtrace_silencers.rb",
+    "example/config/initializers/inflections.rb",
+    "example/config/initializers/mime_types.rb",
+    "example/config/initializers/secret_token.rb",
+    "example/config/initializers/session_store.rb",
+    "example/config/initializers/wrap_parameters.rb",
+    "example/config/locales/en.yml",
+    "example/config/routes.rb",
+    "example/db/seeds.rb",
+    "example/lib/assets/.gitkeep",
+    "example/lib/tasks/.gitkeep",
+    "example/log/.gitkeep",
+    "example/public/404.html",
+    "example/public/422.html",
+    "example/public/500.html",
+    "example/public/favicon.ico",
+    "example/public/index.html",
+    "example/public/robots.txt",
+    "example/script/rails",
+    "example/spec/controllers/posts_controller_spec.rb",
+    "example/spec/helpers/posts_helper_spec.rb",
+    "example/spec/models/post_spec.rb",
+    "example/spec/requests/posts_spec.rb",
+    "example/spec/routing/posts_routing_spec.rb",
+    "example/spec/spec_helper.rb",
+    "example/spec/views/posts/edit.html.erb_spec.rb",
+    "example/spec/views/posts/index.html.erb_spec.rb",
+    "example/spec/views/posts/new.html.erb_spec.rb",
+    "example/spec/views/posts/show.html.erb_spec.rb",
+    "example/vendor/assets/stylesheets/.gitkeep",
+    "example/vendor/plugins/.gitkeep",
     "features/ampere.feature",
     "features/step_definitions/ampere_steps.rb",
     "features/support/env.rb",
     "lib/ampere.rb",
     "lib/ampere/collection.rb",
+    "lib/ampere/keys.rb",
     "lib/ampere/model.rb",
+    "lib/ampere/timestamps.rb",
+    "lib/rails/generators/ampere/config/config_generator.rb",
+    "lib/rails/generators/ampere/config/templates/ampere.yml",
+    "lib/rails/generators/ampere/model/model_generator.rb",
+    "lib/rails/generators/ampere/model/templates/model.rb.tt",
+    "lib/rails/railtie.rb",
+    "lib/rails/tasks/ampere.rake",
     "spec/models/indices_spec.rb",
     "spec/models/model_spec.rb",
     "spec/models/queries_spec.rb",
     "spec/models/relationships/belongs_to_spec.rb",
     "spec/models/relationships/has_many_spec.rb",
     "spec/models/relationships/has_one_spec.rb",
+    "spec/models/timestamps_spec.rb",
     "spec/models/updates_spec.rb",
+    "spec/models/validations_spec.rb",
+    "spec/models/volatility_spec.rb",
     "spec/module/ampere_spec.rb",
+    "spec/module/collections_ennumerable_spec.rb",
     "spec/module/collections_spec.rb",
     "spec/spec_helper.rb",
     "test/helper.rb",
@@ -48,41 +125,48 @@ Gem::Specification.new do |s|
   ]
   s.homepage = "http://github.com/mstahl/ampere"
   s.licenses = ["EPL"]
+  s.post_install_message = "Thanks for installing Ampere!"
   s.require_paths = ["lib"]
-  s.rubygems_version = "1.8.17"
+  s.rubygems_version = "1.8.24"
   s.summary = "A pure Ruby ORM for Redis."
 
   if s.respond_to? :specification_version then
     s.specification_version = 3
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
+      s.add_runtime_dependency(%q<activerecord>, [">= 0"])
       s.add_runtime_dependency(%q<redis>, [">= 0"])
       s.add_development_dependency(%q<shoulda>, [">= 0"])
       s.add_development_dependency(%q<cucumber>, [">= 0"])
-      s.add_development_dependency(%q<bundler>, ["~> 1.0.0"])
+      s.add_development_dependency(%q<bundler>, [">= 1.0.0"])
       s.add_development_dependency(%q<jeweler>, ["~> 1.6.4"])
       s.add_development_dependency(%q<simplecov>, [">= 0"])
       s.add_development_dependency(%q<rspec>, [">= 0"])
       s.add_development_dependency(%q<rdoc>, [">= 0"])
+      s.add_development_dependency(%q<timecop>, [">= 0"])
     else
+      s.add_dependency(%q<activerecord>, [">= 0"])
       s.add_dependency(%q<redis>, [">= 0"])
       s.add_dependency(%q<shoulda>, [">= 0"])
       s.add_dependency(%q<cucumber>, [">= 0"])
-      s.add_dependency(%q<bundler>, ["~> 1.0.0"])
+      s.add_dependency(%q<bundler>, [">= 1.0.0"])
       s.add_dependency(%q<jeweler>, ["~> 1.6.4"])
       s.add_dependency(%q<simplecov>, [">= 0"])
       s.add_dependency(%q<rspec>, [">= 0"])
       s.add_dependency(%q<rdoc>, [">= 0"])
+      s.add_dependency(%q<timecop>, [">= 0"])
     end
   else
+    s.add_dependency(%q<activerecord>, [">= 0"])
     s.add_dependency(%q<redis>, [">= 0"])
     s.add_dependency(%q<shoulda>, [">= 0"])
     s.add_dependency(%q<cucumber>, [">= 0"])
-    s.add_dependency(%q<bundler>, ["~> 1.0.0"])
+    s.add_dependency(%q<bundler>, [">= 1.0.0"])
     s.add_dependency(%q<jeweler>, ["~> 1.6.4"])
     s.add_dependency(%q<simplecov>, [">= 0"])
     s.add_dependency(%q<rspec>, [">= 0"])
     s.add_dependency(%q<rdoc>, [">= 0"])
+    s.add_dependency(%q<timecop>, [">= 0"])
   end
 end
 

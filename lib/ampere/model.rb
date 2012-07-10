@@ -10,22 +10,25 @@ module Ampere
       
       base.class_eval do
         extend(::ActiveModel::Callbacks)
-        define_model_callbacks :create, :update, :save
+        define_model_callbacks :create, :update, :save # TODO Might need more of these.
         
         include(::ActiveModel::Validations)
         include(Rails.application.routes.url_helpers) if defined?(Rails)
         include(ActionController::UrlFor) if defined?(Rails)
-
+        
         include(Ampere::Keys)
         
+        # Control attributes
         attr_reader :id
         attr_reader :destroyed
+        attr_reader :volatile
         
+        # Model attributes
         attr_accessor :fields
         attr_accessor :field_defaults
         attr_accessor :indices
         attr_accessor :field_types
-    
+        
         @fields         = []
         @field_defaults = {}
         @indices        = []
@@ -69,6 +72,27 @@ module Ampere
       self == other
     end
     
+    # Sets expiration of record with an integer argument representing the 
+    # number of seconds or milliseconds since 1 Jan 1970 at which to expire 
+    # the record.
+    def expire_at(time, unit)
+      if unit == :ms then
+        Ampere.connection.pexpireat(key_for_find(self.class, @id), time.to_i)
+      else
+        Ampere.connection.expireat(key_for_find(self.class, @id), time.to_i)
+      end
+    end
+    
+    # Sets expiration of record with an integer argument representing the 
+    # number of seconds or milliseconds until the record expires.
+    def expire_in(time, unit)
+      if unit == :ms then
+        Ampere.connection.pexpire(key_for_find(self.class, @id), time.to_i)
+      else
+        Ampere.connection.expire(key_for_find(self.class, @id), time.to_i)
+      end
+    end
+    
     # Calculates the hash of this object from the attributes hash instead of
     # using Object.hash.
     def hash
@@ -86,6 +110,8 @@ module Ampere
           @id = unmarshal ? Marshal.load(v) : v
         elsif k =~ /_id$/ then
           self.send("#{k}=", v.to_i)
+        elsif k =~ /^expire_/ then
+          @volatile = volatility_value_for(k, v)
         else
           self.send("#{k}=", unmarshal ? Marshal.load(v) : v)
         end
@@ -100,6 +126,10 @@ module Ampere
     
     def persisted?
       not @id.nil?
+    end
+    
+    def persistent?
+      ! @volatile
     end
     
     # Reloads this record from the database.
@@ -178,6 +208,14 @@ module Ampere
       @id.to_s
     end
     
+    def ttl
+      Ampere.connection.ttl(key_for_find(self.class, @id))
+    end
+    
+    def ttl_ms
+      Ampere.connection.pttl(key_for_find(self.class, @id))
+    end
+    
     def update_attribute(key, value)
       raise "Cannot update nonexistent field '#{key}'!" unless self.class.fields.include?(key.to_sym)
       self.send("#{key}=", value)
@@ -193,6 +231,25 @@ module Ampere
         self.send("#{k}=", v)
       end
       self.save
+    end
+    
+    def volatile?
+      !! @volatile
+    end
+    
+    private
+    
+    def volatility_value_for(key, value) #:nodoc:
+      case key
+      when /^expire_at/
+        expire_at(value, key =~ /_ms$/ ? :ms : nil)
+        @volatility = :at
+      when /^expire_in/
+        expire_in(value, key =~ /_ms$/ ? :ms : nil)
+        @volatility = :in
+      else
+        self.send(:"#{key}=", value)
+      end
     end
     
     ### Class methods

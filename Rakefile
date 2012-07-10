@@ -21,6 +21,7 @@ Jeweler::Tasks.new do |gem|
   gem.description = %Q{An ActiveRecord/Mongoid-esque object model for the Redis key/value data store.}
   gem.email = "max@villainousindustri.es"
   gem.authors = ["Max Thom Stahl"]
+  gem.post_install_message = %{Thanks for installing Ampere!}
   # dependencies defined in Gemfile
 end
 Jeweler::RubygemsDotOrgTasks.new
