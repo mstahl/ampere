@@ -77,7 +77,11 @@ module Ampere
     # the record.
     def expire_at(time, unit)
       if unit == :ms then
-        Ampere.connection.pexpireat(key_for_find(self.class, @id), time.to_i)
+        begin
+          Ampere.connection.pexpireat(key_for_find(self.class, @id), time.to_i)
+        rescue Redis::CommandError
+          raise "Your Redis server does not support the PEXPIREAT command. Upgrade your Redis to use :ms."
+        end
       else
         Ampere.connection.expireat(key_for_find(self.class, @id), time.to_i)
       end
@@ -87,10 +91,19 @@ module Ampere
     # number of seconds or milliseconds until the record expires.
     def expire_in(time, unit)
       if unit == :ms then
-        Ampere.connection.pexpire(key_for_find(self.class, @id), time.to_i)
+        begin
+          Ampere.connection.pexpire(key_for_find(self.class, @id), time.to_i)
+        rescue Redis::CommandError
+          raise "Your Redis server does not support the PEXPIRE command. Upgrade your Redis to use :ms."
+        end
       else
         Ampere.connection.expire(key_for_find(self.class, @id), time.to_i)
       end
+    end
+    
+    # Returns true if this record has expired.
+    def expired?
+      @volatile and ttl_ms < Time.now.to_f * 1000
     end
     
     # Calculates the hash of this object from the attributes hash instead of
@@ -209,11 +222,15 @@ module Ampere
     end
     
     def ttl
-      Ampere.connection.ttl(key_for_find(self.class, @id))
+      Ampere.connection.ttl(key_for_find(self.class, @id)) if volatile?
     end
     
     def ttl_ms
-      Ampere.connection.pttl(key_for_find(self.class, @id))
+      begin
+        Ampere.connection.pttl(key_for_find(self.class, @id)) if volatile?
+      rescue Redis::CommandError
+        raise "Your Redis server does not support the PTTL command. Upgrade your Redis to use :ms."
+      end
     end
     
     def update_attribute(key, value)

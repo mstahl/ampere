@@ -10,7 +10,7 @@ describe "Volatility", volatility:true do
     field :campaign
   end
   
-  context "in initializer", wip:true do
+  context "in initializer" do
     it 'should initialize with a time to expire at in seconds since the epoch' do
       (->{
         Visit.new visitor_id: 1234, campaign: 'social-networking', expire_at: (Time.now + 1)
@@ -90,23 +90,28 @@ describe "Volatility", volatility:true do
       end
       
       it 'should return nil for non-volatile records' do
-        pending "Need separate tests for _at and _in expirations"
         persistent_record.ttl_ms.should eq(nil)
+      end
+      
+      it 'should raise an error with the wrong version of Redis' do
+        Ampere.connection.stub(:pttl) { raise 'wrong version of redis' }
+        
+        (->{ volatile_record_in.pttl }).should raise_error
       end
     end
     
     after(:all) { Timecop.return }
   end
   
-  context "expiration" do
+  context "expiration", expiration:true do
     it 'should not expire non-volatile entries' do
-      pending "Requires all the other tests to pass"
+      # pending "Requires all the other tests to pass"
       persistent_visit = Visit.new visitor_id: 3456, campaign: 'bus ad'
       persistent_visit.should_not be_expired
     end
     
     it 'should be expired? when past its expiration' do
-      pending "Requires all the other tests to pass"
+      # pending "Requires all the other tests to pass"
       volatile_visit = Visit.new visitor_id: 2345, campaign: 'word of mouth', expire_at: (Time.now + 3600)
     
       Timecop.freeze(Time.now + 7200) do

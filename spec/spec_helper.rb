@@ -18,4 +18,8 @@ Dir[File.join(File.dirname(__FILE__), "spec", "support", "**", "*.rb")].each {|f
 # Not used yet
 RSpec.configure do |config|
   config.mock_with :rspec
+  
+  config.before do
+    Ampere.connect
+  end
 end
