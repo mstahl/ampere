@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.1
+
+* Model saves and multi-attribute updates are now completely atomic, using
+  the MULTI and EXEC commands.
+
 ## 1.2.0
 
 * Ampere model IDs are now integers. They are still stored internally the

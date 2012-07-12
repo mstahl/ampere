@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "ampere"
-  s.version = "1.2.0"
+  s.version = "1.2.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Max Thom Stahl"]
-  s.date = "2012-06-15"
+  s.date = "2012-07-12"
   s.description = "An ActiveRecord/Mongoid-esque object model for the Redis key/value data store."
   s.email = "max@villainousindustri.es"
   s.extra_rdoc_files = [
