@@ -137,8 +137,10 @@ module Ampere
             @id = Ampere.connection.incr('__guid')
           end
           
-          self.attributes.each do |k, v|
-            Ampere.connection.hset(key_for_find(self.class, @id), k, k =~ /_id$/ ? v : Marshal.dump(v))
+          Ampere.connection.multi do
+            self.attributes.each do |k, v|
+              Ampere.connection.hset(key_for_find(self.class, @id), k, k =~ /_id$/ ? v : Marshal.dump(v))
+            end
           end
           
           self.class.indices.each do |index|
@@ -329,9 +331,11 @@ module Ampere
       
         define_method(:"#{field_name}=") do |val|
           val.each do |v|
-            Ampere.connection.sadd(key_for_has_many(to_s.downcase, self.id, field_name), v.id)
-            # Set pointer for belongs_to
-            Ampere.connection.hset(key_for_find(v.class, v.id), "#{my_klass_name}_id", self.send("id"))
+            Ampere.connection.multi do
+              Ampere.connection.sadd(key_for_has_many(to_s.downcase, self.id, field_name), v.id)
+              # Set pointer for belongs_to
+              Ampere.connection.hset(key_for_find(v.class, v.id), "#{my_klass_name}_id", self.send("id"))
+            end
           end
         end
       end
