@@ -35,6 +35,18 @@ describe 'Collections are Ennumerable', :collections => true, :ennumerable => tr
     ]
   end
   
+  it 'should lazily evaluate the #[] method' do
+    presidents = President.all
+    
+    presidents[2].name.should eq('Abraham Lincoln')
+    presidents[2].name.should eq('Abraham Lincoln')
+  end
+  
+  it 'should be comparable to an array' do
+    President.all.should == President.all.to_a
+    President.all.should_not be(President.all.to_a)
+  end
+  
   # These are just a handful of methods to ensure that the Enumerable module is
   # being included correctly. They can safely be factored out since the #each 
   # one above should cover Enumerable if it's being included correctly.
