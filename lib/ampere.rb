@@ -1,7 +1,5 @@
-# require "active_support"
 require "active_record"
 require "redis"
-require "pp"
 
 # The Ampere module contains methods to connect/disconnect and gives access to
 # the Redis connection directly (though you really shouldn't need to use it).

@@ -13,6 +13,7 @@ group :development do
   gem "cucumber", ">= 0"
   gem "bundler", ">= 1.0.0"
   gem "jeweler", "~> 1.6.4"
+  gem "nyan-cat-formatter"
   gem 'simplecov', :require => false, :group => :test
   gem "rspec"
   gem "rdoc"
