@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.2
+
+* Increased code coverage to everything but really bizarre edge cases.
+* Cleaned things up a little bit here and there.
+
 ## 1.2.1
 
 * Model saves and multi-attribute updates are now completely atomic, using
