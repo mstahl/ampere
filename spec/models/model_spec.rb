@@ -2,6 +2,14 @@ require File.join(File.dirname(__FILE__), "..", "spec_helper.rb")
 
 describe "Base models", :model => true do
   context "by themselves" do
+    class Post
+      include Ampere::Model
+      
+      field :title
+      field :byline
+      field :content
+    end
+    
     before :all do
       Ampere.connect
       
@@ -9,13 +17,6 @@ describe "Base models", :model => true do
       Redis.new.flushall
       
       # Define a model class here.
-      class Post
-        include Ampere::Model
-        
-        field :title
-        field :byline
-        field :content
-      end
       
     end
     
@@ -171,26 +172,30 @@ describe "Base models", :model => true do
       post.new?.should be_false
     end
     
-    it "should be deleteable from the model class" do
-      post = Post.create :title   => "This post should be deleted",
-                         :byline  => "because it's awful",
-                         :content => "and it doesn't even make sense."
-      id = post.id
-      post.should_not be_nil
-      deleted_post = Post.delete(id)
-      deleted_post.should eq(post)
-      deleted_post.title.should eq(post.title)
-      Post.find(id).should be_nil
-    end
+    # context 'deletion' do
+      it "should be deleteable from the model class", wip:true do
+        post = Post.create :title   => "This post should be deleted",
+                           :byline  => "because it's awful",
+                           :content => "and it doesn't even make sense."
+        id = post.id
+        post.should_not be_nil
+        deleted_post = Post.delete(id)
+        deleted_post.should eq(post)
+        deleted_post.title.should eq(post.title)
+        deleted_post.should be_destroyed
+        Post.find(id).should be_nil
+      end
     
-    it "should be destroyable by itself" do
-      another_post = Post.create :title   => "This one too, probably.",
-                                 :byline  => "Just seems like one big",
-                                 :content => "non sequitor."
-      id = another_post.id
-      another_post.destroy.should eq(another_post)
-      Post.find(id).should be_nil
-    end
+      it "should be destroyable by itself" do
+        another_post = Post.create :title   => "This one too, probably.",
+                                   :byline  => "Just seems like one big",
+                                   :content => "non sequitor."
+        id = another_post.id
+        another_post.destroy.should eq(another_post)
+        another_post.should be_destroyed
+        Post.find(id).should be_nil
+      end
+    # end
     
     it "should be findable by ID" do
       post = Post.create :title   => "foo",

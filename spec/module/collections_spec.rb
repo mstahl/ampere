@@ -1,18 +1,18 @@
 require File.join(File.dirname(__FILE__), "..", "spec_helper.rb")
 
 describe 'Collections', :collections => true do
+  class President
+    include Ampere::Model
+    
+    field :name
+    field :party
+    
+    index :party
+  end
+  
   before :all do
     Redis.new.flushall
     Ampere.connect
-    
-    class President
-      include Ampere::Model
-      
-      field :name
-      field :party
-      
-      index :party
-    end
 
     President.create :name  => "Millard Fillmore"      , :party => "Whig"
     President.create :name  => "Ulysses S. Grant"      , :party => "Republican"

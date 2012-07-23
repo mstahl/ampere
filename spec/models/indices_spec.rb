@@ -136,9 +136,9 @@ describe "Model indices", :indices => true do
       brandi.first.employee_id_number.should == "31415929"
     end
     
-    it 'should still be able to search on just one field of a compound index' do
-      pending
-    end
+    # it 'should still be able to search on just one field of a compound index' do
+    #   pending
+    # end
   end
   
   ###

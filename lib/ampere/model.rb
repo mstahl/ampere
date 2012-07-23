@@ -18,8 +18,8 @@ module Ampere
 
         include(Ampere::Keys)
         
-        attr_reader :id
-        attr_reader :destroyed
+        attr_reader   :id
+        attr_accessor :destroyed
         
         attr_accessor :fields
         attr_accessor :field_defaults
@@ -229,6 +229,7 @@ module Ampere
       def delete(id)
         record = find(id)
         Ampere.connection.del(key_for_find(self, id))
+        record.destroyed = true
         record
       end
     

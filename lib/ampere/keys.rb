@@ -26,11 +26,7 @@ module Ampere #:nodoc:
     private
     
     def model_name
-      if self.class == Class then
-        to_s
-      else
-        self.class.to_s
-      end
+      self.class.to_s
     end
   
   end

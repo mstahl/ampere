@@ -7,16 +7,22 @@ describe 'Ampere', :ampere => true do
   end
   
   it 'should be able to connect' do
-    Ampere.connected?.should be_true
-    Ampere.disconnect
-    Ampere.connected?.should be_false
+    Ampere.should be_connected
   end
   
-  # context 'Redis data store', :redis => true do
-  #   it 'should come with a __guid set' do
-  #     Redis.new['guid'].should == 0
-  #   end
-  # end
+  it 'should be able to flush' do
+    value = "%016x" % rand(2 ** 64)
+    Ampere.should be_connected
+    Ampere.connection.setex("ampere.test.flush_test", 60, value)
+    Ampere.flush
+    Ampere.connection.get("ampere.test.flush_test").should_not eq(value)
+  end
+  
+  it 'should be able to disconnect' do
+    # NOTE: This test must always be run last
+    Ampere.disconnect
+    Ampere.should_not be_connected
+  end
   
   after :all do
     Redis.new.flushall
