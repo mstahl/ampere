@@ -10,7 +10,7 @@ describe 'Ampere', :ampere => true do
     Ampere.should be_connected
   end
   
-  it 'should be able to flush', wip:true do
+  it 'should be able to flush' do
     value = "%016x" % rand(2 ** 64)
     Ampere.should be_connected
     Ampere.connection.setex("ampere.test.flush_test", 60, value)
