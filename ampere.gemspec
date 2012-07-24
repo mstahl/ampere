@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "ampere"
-  s.version = "1.2.1"
+  s.version = "1.2.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Max Thom Stahl"]
-  s.date = "2012-07-12"
+  s.date = "2012-07-24"
   s.description = "An ActiveRecord/Mongoid-esque object model for the Redis key/value data store."
   s.email = "max@villainousindustri.es"
   s.extra_rdoc_files = [
@@ -138,6 +138,7 @@ Gem::Specification.new do |s|
       s.add_development_dependency(%q<cucumber>, [">= 0"])
       s.add_development_dependency(%q<bundler>, [">= 1.0.0"])
       s.add_development_dependency(%q<jeweler>, ["~> 1.6.4"])
+      s.add_development_dependency(%q<nyan-cat-formatter>, [">= 0"])
       s.add_development_dependency(%q<simplecov>, [">= 0"])
       s.add_development_dependency(%q<rspec>, [">= 0"])
       s.add_development_dependency(%q<rdoc>, [">= 0"])
@@ -149,6 +150,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<cucumber>, [">= 0"])
       s.add_dependency(%q<bundler>, [">= 1.0.0"])
       s.add_dependency(%q<jeweler>, ["~> 1.6.4"])
+      s.add_dependency(%q<nyan-cat-formatter>, [">= 0"])
       s.add_dependency(%q<simplecov>, [">= 0"])
       s.add_dependency(%q<rspec>, [">= 0"])
       s.add_dependency(%q<rdoc>, [">= 0"])
@@ -161,6 +163,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<cucumber>, [">= 0"])
     s.add_dependency(%q<bundler>, [">= 1.0.0"])
     s.add_dependency(%q<jeweler>, ["~> 1.6.4"])
+    s.add_dependency(%q<nyan-cat-formatter>, [">= 0"])
     s.add_dependency(%q<simplecov>, [">= 0"])
     s.add_dependency(%q<rspec>, [">= 0"])
     s.add_dependency(%q<rdoc>, [">= 0"])
