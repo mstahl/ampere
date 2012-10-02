@@ -4,13 +4,13 @@ describe 'Collections are Ennumerable', :collections => true, :ennumerable => tr
   before :all do
     Redis.new.flushall
     Ampere.connect
-    
+  
     class President
       include Ampere::Model
-      
+    
       field :name
       field :party
-      
+    
       index :party
     end
 
@@ -21,32 +21,32 @@ describe 'Collections are Ennumerable', :collections => true, :ennumerable => tr
     President.create :name  => "John F. Kennedy"       , :party => "Democratic"
     President.create :name  => "Jimmy Carter"          , :party => "Democratic"
   end
-  
+
   it 'should implement the #each method correctly' do
     presidents = []
     President.all.each {|p| presidents << p.name}
-    presidents.should == [
-      "Millard Fillmore"     ,
-      "Ulysses S. Grant"     ,
+    presidents.sort.should == [
       "Abraham Lincoln"      ,
       "Franklin D. Roosevelt",
+      "Jimmy Carter"         ,
       "John F. Kennedy"      ,
-      "Jimmy Carter"         
+      "Millard Fillmore"     ,
+      "Ulysses S. Grant"     
     ]
   end
-  
+
   it 'should lazily evaluate the #[] method' do
     presidents = President.all
-    
+  
     presidents[2].name.should eq('Abraham Lincoln')
     presidents[2].name.should eq('Abraham Lincoln')
   end
-  
+
   it 'should be comparable to an array' do
     President.all.should == President.all.to_a
     President.all.should_not be(President.all.to_a)
   end
-  
+
   # These are just a handful of methods to ensure that the Enumerable module is
   # being included correctly. They can safely be factored out since the #each 
   # one above should cover Enumerable if it's being included correctly.
@@ -59,9 +59,9 @@ describe 'Collections are Ennumerable', :collections => true, :ennumerable => tr
     President.all.any? {|p| p.party == 'Whig'}.should be_true
     President.all.any? {|p| p.party == 'Green'}.should be_false
   end
-  
+
   it 'should implement the #map method correctly' do
-    President.all.map(&:party).should == %w{Whig Republican Republican Democratic Democratic Democratic}
+    President.all.map(&:party).sort.should == %w{Whig Republican Republican Democratic Democratic Democratic}.sort
   end
 
   it 'should implement the #inject method correctly' do
@@ -77,6 +77,6 @@ describe 'Collections are Ennumerable', :collections => true, :ennumerable => tr
     }
   end
 
-  
+
 end
 

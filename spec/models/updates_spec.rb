@@ -4,33 +4,33 @@ describe 'queries', :queries => true do
   before :each do
     Redis.new.flushall
     Ampere.connect
-    
+  
     class Motorcycle
       include Ampere::Model
-      
+    
       field :make
       field :model
       field :year
     end
-    
+  
     @bike = Motorcycle.create make: "Honda", model: "CB400", year: "1990"
   end
-  
+
   ###
-  
+
   it 'should be able to update one field atomically' do
     @bike.model.should == "CB400"
     @bike.update_attribute :model, "CB450SC"
     @bike.model.should == "CB450SC"
     @bike.reload.model.should == "CB450SC"
-    
+  
     @bike.year.should == "1990"
     @bike.update_attribute :year, "1986"
     @bike.year.should == "1986"
     @bike.reload
     @bike.year.should == "1986"
   end
-  
+
   it 'should be able to update multiple fields atomically' do
     @bike.update_attributes model: "CB750",
                              year:  "1996"
@@ -54,9 +54,9 @@ describe 'queries', :queries => true do
                               neither_does_this_one:     "Duis aute irure dolor in."
     }).should raise_error
   end
-  
+
   ###
-  
+
   after :all do
     Redis.new.flushall
     Ampere.connect
