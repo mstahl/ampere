@@ -315,7 +315,7 @@ module Ampere
           # Set attr with key where referred model is stored
           self.send("#{field_name}_id=", val.id)
           # Also update that model's hash with a pointer back to here
-          val.send("#{my_klass_name}_id=", self.send("id"))
+          val.send("#{my_klass_name}_id=", self.send("id")) if val.respond_to?("#{my_klass_name}_id=")
         end
       end
     
@@ -325,7 +325,7 @@ module Ampere
         my_klass_name = to_s.downcase
       
         define_method(:"#{field_name}") do
-          (Ampere.connection.smembers(key_for_has_many(to_s.downcase, self.id, field_name))).map do |id|
+          (Ampere.connection.smembers(key_for_has_many(my_klass_name, self.id, field_name))).map do |id|
             eval(klass_name.to_s.capitalize).find(id)
           end
         end
@@ -333,7 +333,7 @@ module Ampere
         define_method(:"#{field_name}=") do |val|
           val.each do |v|
             Ampere.connection.multi do
-              Ampere.connection.sadd(key_for_has_many(to_s.downcase, self.id, field_name), v.id)
+              Ampere.connection.sadd(key_for_has_many(my_klass_name, self.id, field_name), v.id)
               # Set pointer for belongs_to
               Ampere.connection.hset(key_for_find(v.class, v.id), "#{my_klass_name}_id", self.send("id"))
             end
