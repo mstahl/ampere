@@ -103,7 +103,7 @@ module Ampere
     
     # Returns true if this record has expired.
     def expired?
-      @volatile and ttl_ms < Time.now.to_f * 1000
+      @volatile and ttl < Time.now.to_f
     end
     
     # Calculates the hash of this object from the attributes hash instead of
@@ -226,6 +226,7 @@ module Ampere
     end
     
     def ttl_ms
+      raise "The Redis gem doesn't really support the PTTL command yet."
       begin
         Ampere.connection.pttl(key_for_find(self.class, @id)) if volatile?
       rescue Redis::CommandError

@@ -47,7 +47,7 @@ describe "Volatility", volatility:true do
     let(:volatile_record_at_ms) { Visit.new visitor_id: 1, campaign: 'a campaign', expire_at_ms: (Time.now + 3600000) }
     let(:volatile_record_in_ms) { Visit.new visitor_id: 1, campaign: 'a campaign', expire_in_ms: 10 }
     
-    describe "#volatile?", focus:true do
+    describe "#volatile?" do
       it 'should return true for volatile records' do
         volatile_record_at.should be_volatile
         volatile_record_in.should be_volatile
@@ -58,7 +58,7 @@ describe "Volatility", volatility:true do
       end
     end
     
-    describe "#persistent?", focus:true do
+    describe "#persistent?" do
       it 'should return false for volatile records' do
         volatile_record_at.should_not be_persistent
         volatile_record_in.should_not be_persistent
@@ -90,10 +90,14 @@ describe "Volatility", volatility:true do
       end
       
       it 'should return nil for non-volatile records' do
+        pending "The Redis gem doesn't support the millisecond variants of these commands yet."
+
         persistent_record.ttl_ms.should eq(nil)
       end
       
       it 'should raise an error with the wrong version of Redis' do
+        pending "The Redis gem doesn't support the millisecond variants of these commands yet."
+
         Ampere.connection.stub(:pttl) { raise 'wrong version of redis' }
         
         (->{ volatile_record_in.pttl }).should raise_error
@@ -105,13 +109,11 @@ describe "Volatility", volatility:true do
   
   context "expiration", expiration:true do
     it 'should not expire non-volatile entries' do
-      # pending "Requires all the other tests to pass"
       persistent_visit = Visit.new visitor_id: 3456, campaign: 'bus ad'
       persistent_visit.should_not be_expired
     end
     
     it 'should be expired? when past its expiration' do
-      # pending "Requires all the other tests to pass"
       volatile_visit = Visit.new visitor_id: 2345, campaign: 'word of mouth', expire_at: (Time.now + 3600)
     
       Timecop.freeze(Time.now + 7200) do
