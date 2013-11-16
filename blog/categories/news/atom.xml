@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Ampere]]></title>
-  <link href="http://mstahl.github.io/ampere/atom.xml" rel="self"/>
+  <title><![CDATA[Category: news | Ampere]]></title>
+  <link href="http://mstahl.github.io/ampere/blog/categories/news/atom.xml" rel="self"/>
   <link href="http://mstahl.github.io/ampere/"/>
   <updated>2013-11-16T16:06:46-06:00</updated>
   <id>http://mstahl.github.io/ampere/</id>
@@ -27,12 +27,12 @@ to make it as compatible as possible. I use <a href="http://semver.org/">semanti
 versioning</a> for Ampere, so pay attention to version numbers
 when deciding which version of Ampere to use for your project.</p>
 
-<p>I&rsquo;d also like to hear from y&#8217;all, my userbase. Are there features you&rsquo;d like to
+<p>I&rsquo;d also like to hear from y'all, my userbase. Are there features you&rsquo;d like to
 see in Ampere but that aren&rsquo;t there? Have you experienced any issues or
 performance issues you&rsquo;d like to share with the rest of the class? How&rsquo;s your life
 in general? You doing okay? We all want to know these things. Let&rsquo;s rap.</p>
 
-<p>Anyways I&#8217;mma get to it now. See y&#8217;all later.</p>
+<p>Anyways I'mma get to it now. See y'all later.</p>
 ]]></content>
   </entry>
   
