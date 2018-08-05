@@ -1,5 +1,5 @@
-require "active_record"
-require "redis"
+require 'active_record'
+require 'redis'
 
 # The Ampere module contains methods to connect/disconnect and gives access to
 # the Redis connection directly (though you really shouldn't need to use it).
@@ -9,7 +9,7 @@ module Ampere
   # Open a new Redis connection. `options` is passed directly to the Redis.connect
   # method.
   def self.connect(options = {})
-    @@connection = Redis.connect(options)
+    @@connection = Redis.new(options)
   end
   
   # Closes the Redis connection.

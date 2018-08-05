@@ -20,13 +20,7 @@ module Ampere #:nodoc:
     end
     
     def key_for_index(field)
-      ['ampere', 'index', model_name.downcase, field].flatten.join('.')
-    end
-    
-    private
-    
-    def model_name
-      self.class.to_s
+      ['ampere', 'index', self.class.to_s.downcase, field].flatten.join('.')
     end
   
   end
