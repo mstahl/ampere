@@ -53,7 +53,7 @@ GEM
       simplecov-html (~> 0.5.3)
     simplecov-html (0.5.3)
     timecop (0.3.5)
-    tzinfo (0.3.33)
+    tzinfo (0.3.61)
 
 PLATFORMS
   ruby
